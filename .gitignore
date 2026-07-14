@@ -1,0 +1,12 @@
+# Linux
+.DS_Store
+Thumbs.db
+
+# IntelliJ IDEA
+.idea/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
