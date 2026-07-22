@@ -1,10 +1,10 @@
-package com.educativo;
+package com.umg.sgau;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class EducativoBackendApplicationTests {
+class SgauBackendApiApplicationTests {
 
 	@Test
 	void contextLoads() {

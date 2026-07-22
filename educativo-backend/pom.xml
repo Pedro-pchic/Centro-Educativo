@@ -8,24 +8,14 @@
 		<version>4.1.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.educativo</groupId>
-	<artifactId>educativo-backend</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+
+	<groupId>com.umg</groupId>
+    <artifactId>sgau-backend-api</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>sgau-backend-api</name>
+    <description>Sistema de Gestión Académica Universitaria</description>
+    <packaging>jar</packaging>
+
 	<properties>
 		<java.version>17</java.version>
 	</properties>
