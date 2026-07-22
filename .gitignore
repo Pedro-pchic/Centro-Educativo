@@ -15,7 +15,7 @@ Thumbs.db
 .settings/
 bin/
 **/bin/
-
+sgau-backend-api/bin/
 # Java / Maven
 target/
 **/target/
