@@ -1,13 +1,27 @@
-# Linux
+# Sistema operativo
 .DS_Store
 Thumbs.db
 
 # IntelliJ IDEA
 .idea/
+*.iml
 
 # VS Code
 .vscode/
 
+# Eclipse / Spring Tool Suite
+.project
+.classpath
+.settings/
+bin/
+**/bin/
+
+# Java / Maven
+target/
+**/target/
+
 # Logs
 *.log
-.project
+
+# Configuración local Spring Boot
+**/src/main/resources/application.properties
