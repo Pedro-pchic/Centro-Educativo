@@ -1,5 +1,5 @@
-package com.umg.sgau.usuario.serviceimpl;
+package com.umg.sgau.carrera.serviceimpl;
 
-public class UsuarioServiceimpl {
+public class CarreraServiceimpl {
 
 }

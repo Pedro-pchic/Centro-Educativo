@@ -1,5 +1,5 @@
-package com.umg.sgau.usuario.service;
+package com.umg.sgau.carrera.service;
 
-public class UsuarioService {
+public class CarreraService {
 
 }

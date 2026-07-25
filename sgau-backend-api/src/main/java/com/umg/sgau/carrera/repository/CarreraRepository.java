@@ -1,5 +1,5 @@
-package com.umg.sgau.usuario.repository;
+package com.umg.sgau.carrera.repository;
 
-public class UsuarioRepository {
+public class CarreraRepository {
 
 }
