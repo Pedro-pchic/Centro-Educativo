@@ -1,5 +1,5 @@
-package com.umg.sgau.usuario.mapper;
+package com.umg.sgau.carrera.mapper;
 
-public class UsuarioMapper {
+public class CarreraMapper {
 
 }

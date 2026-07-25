@@ -1,5 +1,5 @@
-package com.umg.sgau.usuario.entity;
+package com.umg.sgau.carrera.entity;
 
-public class UsuarioEntity {
+public class CarreraEntity {
 
 }
