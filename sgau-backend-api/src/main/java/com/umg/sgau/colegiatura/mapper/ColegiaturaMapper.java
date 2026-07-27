@@ -1,5 +1,5 @@
-package com.umg.sgau.docente.mapper;
+package com.umg.sgau.colegiatura.mapper;
 
-public class DocenteMapper {
+public class ColegiaturaMapper {
 
 }

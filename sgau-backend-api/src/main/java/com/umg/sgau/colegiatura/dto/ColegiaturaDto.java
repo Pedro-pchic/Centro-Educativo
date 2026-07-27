@@ -1,5 +1,5 @@
-package com.umg.sgau.docente.dto;
+package com.umg.sgau.colegiatura.dto;
 
-public class DocenteDto {
+public class ColegiaturaDto {
 
 }

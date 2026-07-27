@@ -1,5 +1,5 @@
-package com.umg.sgau.docente.repository;
+package com.umg.sgau.colegiatura.repository;
 
-public class DocenteRepository {
+public class ColegiaturaRepository {
 
 }
