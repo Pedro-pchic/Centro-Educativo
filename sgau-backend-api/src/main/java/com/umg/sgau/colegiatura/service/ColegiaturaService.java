@@ -1,5 +1,5 @@
-package com.umg.sgau.docente.service;
+package com.umg.sgau.colegiatura.service;
 
-public class DocenteService {
+public class ColegiaturaService {
 
 }

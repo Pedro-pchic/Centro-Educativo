@@ -1,5 +1,5 @@
-package com.umg.sgau.docente.entity;
+package com.umg.sgau.colegiatura.entity;
 
-public class DocenteEntity {
+public class ColegiaturaEntity {
 
 }

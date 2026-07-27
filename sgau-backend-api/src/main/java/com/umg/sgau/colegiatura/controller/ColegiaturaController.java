@@ -1,5 +1,5 @@
-package com.umg.sgau.docente.controller;
+package com.umg.sgau.colegiatura.controller;
 
-public class DocenteController {
+public class ColegiaturaController {
 
 }
