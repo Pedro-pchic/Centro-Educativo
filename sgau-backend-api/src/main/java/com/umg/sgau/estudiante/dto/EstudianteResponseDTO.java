@@ -1,57 +1,23 @@
-package com.umg.sgau.estudiante.entity;
+package com.umg.sgau.estudiante.dto;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "estudiantes")
-public class EstudianteEntity {
+public class EstudianteResponseDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false, unique = true, length = 20)
     private String carnet;
-
-    @Column(nullable = false, length = 60)
     private String nombre;
-
-    @Column(nullable = false, length = 60)
     private String apellido;
-
-    @Column(nullable = false, unique = true, length = 100)
     private String email;
-
-    @Column(length = 20)
     private String telefono;
-
-    @Column(length = 150)
     private String direccion;
-
-    @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
-
-    @Column(nullable = false)
     private Boolean activo;
-
-    @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
-    public Estudiante() {
+    public EstudianteResponseDTO() {
     }
-
-    @PrePersist
-    protected void alPersistir() {
-        this.fechaCreacion = LocalDateTime.now();
-
-        if (this.activo == null) {
-            this.activo = true;
-        }
-    }
-
-    // Getters y Setters
 
     public Long getId() {
         return id;
@@ -132,4 +98,6 @@ public class EstudianteEntity {
     public void setFechaCreacion(LocalDateTime fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
     }
+
+
 }
