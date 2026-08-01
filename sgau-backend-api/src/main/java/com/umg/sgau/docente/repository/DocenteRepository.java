@@ -17,6 +17,8 @@ public interface DocenteRepository extends JpaRepository<DocenteEntity, Long> {
 	
 	Optional<DocenteEntity> findByDpi(String dpi);
 	
+	Optional<DocenteEntity> findById(String id);
+	
 	Optional<DocenteEntity> findByEmailInstitucional(String emailInstitucional);
 	
 	List<DocenteEntity> findByActivoTrue();

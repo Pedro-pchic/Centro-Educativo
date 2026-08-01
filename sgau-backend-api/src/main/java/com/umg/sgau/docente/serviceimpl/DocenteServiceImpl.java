@@ -47,6 +47,12 @@ public class DocenteServiceImpl implements DocenteService {
     }
     
     @Override
+    public DocenteEntity buscarPorId(String id) {
+        return docenteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No se encontró ningún docente con el ID: " + id));
+    }
+    
+    @Override
     public List<DocenteEntity> obtenerTodos(){
     	return docenteRepository.findAll();
     }

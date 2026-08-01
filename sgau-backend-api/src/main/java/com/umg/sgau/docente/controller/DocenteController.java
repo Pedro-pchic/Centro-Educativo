@@ -5,7 +5,9 @@ import com.umg.sgau.docente.dto.DocenteRequestDTO;
 import com.umg.sgau.docente.dto.DocenteResponseDTO; 
 import com.umg.sgau.docente.entity.DocenteEntity; 
 import com.umg.sgau.docente.mapper.DocenteMapper; 
-import com.umg.sgau.docente.service.DocenteService; 
+import com.umg.sgau.docente.service.DocenteService;
+
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,6 +38,7 @@ public class DocenteController {
         }
     } 
  
+    // Buscar por DPI
     @GetMapping("/dpi/{dpi}") 
     public ResponseEntity<?> obtenerPorDpi(@PathVariable String dpi) { 
         try { 
@@ -45,6 +48,40 @@ public class DocenteController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage()); 
         } 
     } 
+    
+    // Buscar por ID
+    @GetMapping("/{id}") 
+    public ResponseEntity<?> buscarPorId(@PathVariable String id) { 
+        try { 
+            DocenteEntity docente = docenteService.buscarPorId(id); 
+            return ResponseEntity.ok(DocenteMapper.aResponseDTO(docente)); 
+        } catch (RuntimeException ex) { 
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage()); 
+        } 
+    } 
+    // Buscar por Especialidad
+    @GetMapping("/especialidad/{especialidad}")
+    public ResponseEntity<?>buscarPorEspecialidad(@PathVariable String especialidad){
+    	try {
+    		List<DocenteEntity> docente = docenteService.buscarPorEspecialidad(especialidad);
+    		return ResponseEntity.ok(DocenteMapper.aResponseDTOList(docente));
+    	} catch (RuntimeException ex) {
+    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage()); 
+    	}
+    }
+    
+    // Buscar por Docentes activos
+    @GetMapping("/activos")
+    public ResponseEntity<?>obtenerDocentesActivos(){
+    	try {
+    		List<DocenteEntity> docente = docenteService.obtenerDocentesActivos();
+    		return ResponseEntity.ok(DocenteMapper.aResponseDTOList(docente));
+    	} catch (RuntimeException ex) {
+    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage()); 
+    	}
+    }
+    
+    
  
     // Consultar catedráticos (con paginación) y Buscar mediante filtros
     @GetMapping 
