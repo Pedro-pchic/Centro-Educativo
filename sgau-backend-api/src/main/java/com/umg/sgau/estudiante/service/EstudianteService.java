@@ -1,19 +1,18 @@
 package com.umg.sgau.estudiante.service;
 
-import com.umg.sgau.estudiante.dto.EstudianteRequestDTO;
-import com.umg.sgau.estudiante.dto.EstudianteResponseDTO;
+import com.umg.sgau.estudiante.entity.EstudianteEntity;
 
 import java.util.List;
 
 public interface EstudianteService {
 
-    EstudianteResponseDTO crear(EstudianteRequestDTO request);
+    EstudianteEntity crear(EstudianteEntity estudiante);
 
-    List<EstudianteResponseDTO> listar();
+    EstudianteEntity obtenerPorId(Long id);
 
-    EstudianteResponseDTO buscarPorId(Long id);
+    List<EstudianteEntity> obtenerTodos();
 
-    EstudianteResponseDTO actualizar(Long id, EstudianteRequestDTO request);
+    EstudianteEntity actualizar(Long id, EstudianteEntity estudiante);
 
     void eliminar(Long id);
 }

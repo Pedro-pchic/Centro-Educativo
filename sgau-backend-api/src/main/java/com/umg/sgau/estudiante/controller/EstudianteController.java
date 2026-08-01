@@ -1,46 +1,126 @@
 package com.umg.sgau.estudiante.controller;
 
+import com.umg.sgau.exception.EstudianteNoEncontradoException;
 import com.umg.sgau.estudiante.dto.EstudianteRequestDTO;
 import com.umg.sgau.estudiante.dto.EstudianteResponseDTO;
+import com.umg.sgau.estudiante.entity.EstudianteEntity;
+import com.umg.sgau.estudiante.mapper.EstudianteMapper;
 import com.umg.sgau.estudiante.service.EstudianteService;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/estudiantes")
-@RequiredArgsConstructor
 public class EstudianteController {
 
     private final EstudianteService estudianteService;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public EstudianteResponseDTO crear(@RequestBody EstudianteRequestDTO request) {
-        return estudianteService.crear(request);
+    public EstudianteController(EstudianteService estudianteService) {
+        this.estudianteService = estudianteService;
     }
 
-    @GetMapping
-    public List<EstudianteResponseDTO> listar() {
-        return estudianteService.listar();
+    @PostMapping
+    public ResponseEntity<?> crear(
+            @RequestBody EstudianteRequestDTO request) {
+
+        EstudianteEntity estudianteCreado =
+                estudianteService.crear(
+                        EstudianteMapper.aEntidad(request)
+                );
+
+        EstudianteResponseDTO response =
+                EstudianteMapper.aResponseDTO(estudianteCreado);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
+
 
     @GetMapping("/{id}")
-    public EstudianteResponseDTO buscarPorId(@PathVariable Long id) {
-        return estudianteService.buscarPorId(id);
+    public ResponseEntity<?> obtenerPorId(
+            @PathVariable Long id) {
+
+        try {
+
+            EstudianteEntity estudiante =
+                    estudianteService.obtenerPorId(id);
+
+            return ResponseEntity.ok(
+                    EstudianteMapper.aResponseDTO(estudiante)
+            );
+
+        } catch (EstudianteNoEncontradoException ex) {
+
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(ex.getMessage());
+        }
     }
+
+
+    @GetMapping
+    public ResponseEntity<?> obtenerTodos() {
+
+        List<EstudianteEntity> estudiantes =
+                estudianteService.obtenerTodos();
+
+        List<EstudianteResponseDTO> response =
+                EstudianteMapper.aResponseDTOList(estudiantes);
+
+        return ResponseEntity.ok(response);
+    }
+
 
     @PutMapping("/{id}")
-    public EstudianteResponseDTO actualizar(@PathVariable Long id,
-                                            @RequestBody EstudianteRequestDTO request) {
-        return estudianteService.actualizar(id, request);
+    public ResponseEntity<?> actualizar(
+            @PathVariable Long id,
+            @RequestBody EstudianteRequestDTO request) {
+
+        try {
+
+            EstudianteEntity estudianteActualizado =
+                    estudianteService.actualizar(
+                            id,
+                            EstudianteMapper.aEntidad(request)
+                    );
+
+            return ResponseEntity.ok(
+                    EstudianteMapper.aResponseDTO(
+                            estudianteActualizado
+                    )
+            );
+
+        } catch (EstudianteNoEncontradoException ex) {
+
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(ex.getMessage());
+        }
     }
 
+
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void eliminar(@PathVariable Long id) {
-        estudianteService.eliminar(id);
+    public ResponseEntity<?> eliminar(
+            @PathVariable Long id) {
+
+        try {
+
+            estudianteService.eliminar(id);
+
+            return ResponseEntity
+                    .noContent()
+                    .build();
+
+        } catch (EstudianteNoEncontradoException ex) {
+
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(ex.getMessage());
+        }
     }
 }

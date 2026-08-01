@@ -1,99 +1,120 @@
-package com.umg.sgau.estudiante.service.impl;
+package com.umg.sgau.estudiante.serviceimpl;
 
-import com.umg.sgau.estudiante.dto.EstudianteRequestDTO;
-import com.umg.sgau.estudiante.dto.EstudianteResponseDTO;
-import com.umg.sgau.estudiante.entity.Estudiante;
+import com.umg.sgau.exception.EstudianteNoEncontradoException;
+import com.umg.sgau.estudiante.entity.EstudianteEntity;
 import com.umg.sgau.estudiante.repository.EstudianteRepository;
 import com.umg.sgau.estudiante.service.EstudianteService;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
-public class EstudianteServiceImpl implements EstudianteService {
+public class EstudianteServiceimpl implements EstudianteService {
 
     private final EstudianteRepository estudianteRepository;
 
-    @Override
-    public EstudianteResponseDTO crear(EstudianteRequestDTO request) {
+    public EstudianteServiceimpl(
+            EstudianteRepository estudianteRepository) {
 
-        Estudiante estudiante = new Estudiante();
-        estudiante.setCarnet(request.getCarnet());
-        estudiante.setNombre(request.getNombre());
-        estudiante.setApellido(request.getApellido());
-        estudiante.setEmail(request.getEmail());
-        estudiante.setTelefono(request.getTelefono());
-        estudiante.setDireccion(request.getDireccion());
-        estudiante.setFechaNacimiento(request.getFechaNacimiento());
-
-        Estudiante guardado = estudianteRepository.save(estudiante);
-
-        return convertirDTO(guardado);
+        this.estudianteRepository = estudianteRepository;
     }
 
     @Override
-    public List<EstudianteResponseDTO> listar() {
+    public EstudianteEntity crear(EstudianteEntity estudiante) {
+
+        return estudianteRepository.save(estudiante);
+    }
+
+    @Override
+    public EstudianteEntity obtenerPorId(Long id) {
+
+        Optional<EstudianteEntity> estudianteEncontrado =
+                estudianteRepository.findById(id);
+
+        if (estudianteEncontrado.isEmpty()) {
+            throw new EstudianteNoEncontradoException(id);
+        }
+
+        EstudianteEntity estudiante =
+                estudianteEncontrado.get();
+
+        if (!Boolean.TRUE.equals(estudiante.getActivo())) {
+            throw new EstudianteNoEncontradoException(id);
+        }
+
+        return estudiante;
+    }
+
+    @Override
+    public List<EstudianteEntity> obtenerTodos() {
+
         return estudianteRepository.findAll()
                 .stream()
-                .map(this::convertirDTO)
+                .filter(estudiante ->
+                        Boolean.TRUE.equals(estudiante.getActivo()))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public EstudianteResponseDTO buscarPorId(Long id) {
+    public EstudianteEntity actualizar(
+            Long id,
+            EstudianteEntity estudiante) {
 
-        Estudiante estudiante = estudianteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
+        Optional<EstudianteEntity> estudianteExistente =
+                estudianteRepository.findById(id);
 
-        return convertirDTO(estudiante);
-    }
+        if (estudianteExistente.isEmpty()) {
+            throw new EstudianteNoEncontradoException(id);
+        }
 
-    @Override
-    public EstudianteResponseDTO actualizar(Long id, EstudianteRequestDTO request) {
+        EstudianteEntity estudianteActual =
+                estudianteExistente.get();
 
-        Estudiante estudiante = estudianteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
+        if (!Boolean.TRUE.equals(estudianteActual.getActivo())) {
+            throw new EstudianteNoEncontradoException(id);
+        }
 
-        estudiante.setCarnet(request.getCarnet());
-        estudiante.setNombre(request.getNombre());
-        estudiante.setApellido(request.getApellido());
-        estudiante.setEmail(request.getEmail());
-        estudiante.setTelefono(request.getTelefono());
-        estudiante.setDireccion(request.getDireccion());
-        estudiante.setFechaNacimiento(request.getFechaNacimiento());
+        estudianteActual.setNombre(estudiante.getNombre());
+        estudianteActual.setApellido(estudiante.getApellido());
+        estudianteActual.setEmail(estudiante.getEmail());
+        estudianteActual.setCodigoEstudiante(
+                estudiante.getCodigoEstudiante()
+        );
 
-        Estudiante actualizado = estudianteRepository.save(estudiante);
-
-        return convertirDTO(actualizado);
+        return estudianteRepository.save(estudianteActual);
     }
 
     @Override
     public void eliminar(Long id) {
 
-        Estudiante estudiante = estudianteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
+        Optional<EstudianteEntity> estudianteExistente =
+                estudianteRepository.findById(id);
 
-        estudianteRepository.delete(estudiante);
+        if (estudianteExistente.isEmpty()) {
+            throw new EstudianteNoEncontradoException(id);
+        }
+
+        EstudianteEntity estudiante =
+                estudianteExistente.get();
+
+        estudiante.setActivo(false);
+
+        estudianteRepository.save(estudiante);
     }
 
-    private EstudianteResponseDTO convertirDTO(Estudiante estudiante) {
+    public List<String> obtenerNombresEstudiantesActivos() {
 
-        EstudianteResponseDTO dto = new EstudianteResponseDTO();
-
-        dto.setId(estudiante.getId());
-        dto.setCarnet(estudiante.getCarnet());
-        dto.setNombre(estudiante.getNombre());
-        dto.setApellido(estudiante.getApellido());
-        dto.setEmail(estudiante.getEmail());
-        dto.setTelefono(estudiante.getTelefono());
-        dto.setDireccion(estudiante.getDireccion());
-        dto.setFechaNacimiento(estudiante.getFechaNacimiento());
-        dto.setActivo(estudiante.getActivo());
-        dto.setFechaCreacion(estudiante.getFechaCreacion());
-
-        return dto;
+        return estudianteRepository.findAll()
+                .stream()
+                .filter(estudiante ->
+                        Boolean.TRUE.equals(estudiante.getActivo()))
+                .map(estudiante ->
+                        estudiante.getNombre()
+                        + " "
+                        + estudiante.getApellido())
+                .collect(Collectors.toList());
     }
 }
