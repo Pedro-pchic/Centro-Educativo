@@ -84,6 +84,7 @@ public class EstudianteServiceimpl implements EstudianteService {
         estudianteActual.setCodigoEstudiante(
                 estudiante.getCodigoEstudiante()
         );
+        estudianteActual.setCarnet(estudiante.getCarnet());
 
         return estudianteRepository.save(estudianteActual);
     }

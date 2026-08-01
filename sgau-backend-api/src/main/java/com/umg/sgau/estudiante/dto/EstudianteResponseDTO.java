@@ -11,6 +11,7 @@ public class EstudianteResponseDTO {
 
     private Long id;
     private String codigoEstudiante;
+    private String carnet;
     private String email;
     private String nombre;
     private String apellido;

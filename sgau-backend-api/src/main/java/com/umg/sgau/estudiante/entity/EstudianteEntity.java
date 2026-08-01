@@ -29,6 +29,10 @@ public class EstudianteEntity {
 
     @Column(nullable = false, unique = true, length = 20)
     private String codigoEstudiante;
+    
+
+    @Column(nullable = false, unique = true, length = 20)
+    private String carnet;
 
     @Column(nullable = false)
     private Boolean activo;
