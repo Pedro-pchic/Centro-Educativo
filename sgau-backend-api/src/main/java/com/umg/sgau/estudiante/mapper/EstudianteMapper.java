@@ -32,9 +32,7 @@ public class EstudianteMapper {
         EstudianteResponseDTO dto = new EstudianteResponseDTO();
 
         dto.setId(estudiante.getId());
-        dto.setCodigoEstudiante(
-                estudiante.getCodigoEstudiante()
-        );
+        dto.setCodigoEstudiante(estudiante.getCodigoEstudiante());
         dto.setCarnet(estudiante.getCarnet());
         dto.setEmail(estudiante.getEmail());
         dto.setNombre(estudiante.getNombre());
