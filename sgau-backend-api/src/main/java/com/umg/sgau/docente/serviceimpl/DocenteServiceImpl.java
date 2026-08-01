@@ -73,7 +73,7 @@ public class DocenteServiceImpl implements DocenteService {
     	docenteActual.setTelefono(docente.getTelefono());
     	docenteActual.setEspecialidad(docente.getEspecialidad());
     	docenteActual.setFechaContratacion(docente.getFechaContratacion());
-    	//docenteActual.setEstado(docente.getEstado());
+    
     	
     	return docenteRepository.save(docenteActual);
 	}
@@ -83,7 +83,7 @@ public class DocenteServiceImpl implements DocenteService {
     	DocenteEntity docenteExistente = docenteRepository.findById(id)
     			.orElseThrow(() -> new DocenteNoEncontradoException(id));
     	
-    	docenteExistente.setEstado(false);
+    	docenteExistente.setActivo(false);
     	docenteRepository.save(docenteExistente);
     }
     
@@ -91,7 +91,7 @@ public class DocenteServiceImpl implements DocenteService {
     	DocenteEntity docenteExistente = docenteRepository.findById(id)
     			.orElseThrow(() -> new DocenteNoEncontradoException(id));
     	
-    	docenteExistente.setEstado(true);
+    	docenteExistente.setActivo(true);
     	docenteRepository.save(docenteExistente);
     }
 

@@ -36,7 +36,7 @@ public class DocenteController {
         }
     } 
  
-    @GetMapping("/{dpi}") 
+    @GetMapping("/dpi/{dpi}") 
     public ResponseEntity<?> obtenerPorDpi(@PathVariable String dpi) { 
         try { 
             DocenteEntity docente = docenteService.buscarPorDpi(dpi); 

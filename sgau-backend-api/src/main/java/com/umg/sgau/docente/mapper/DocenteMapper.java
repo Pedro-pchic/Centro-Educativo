@@ -39,7 +39,7 @@ public class DocenteMapper {
 		dto.setTelefono(docente.getTelefono());
 		dto.setEspecialidad(docente.getEspecialidad());
 		dto.setFechaContratacion(docente.getFechaContratacion());
-		dto.setEstado(docente.getEstado());
+		dto.setActivo(docente.getActivo());
 		
 		return dto;
 	}

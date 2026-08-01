@@ -10,7 +10,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "docente")
 public class DocenteEntity {
@@ -29,7 +35,7 @@ public class DocenteEntity {
 	private String emailInstitucional;
 	
 	@Column(name = "email_personal", nullable = false, unique = true, length = 100)
-	private String emailpersonal;
+	private String emailPersonal;
 	
 	@Column(nullable = false, unique = true, length = 13)
 	private String dpi;
@@ -49,8 +55,7 @@ public class DocenteEntity {
 	@Column(name = "fecha_creacion", nullable = false, updatable = false)
 	private LocalDateTime fechaCreacion;
 	
-	public DocenteEntity() {
-	}
+	
 	
 	@PrePersist
 	protected void alPersistir() {
@@ -59,95 +64,5 @@ public class DocenteEntity {
 			this.activo = true;
 		}
 	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getNombre() {
-		return nombre;
-	}
-
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
-
-	public String getApellido() {
-		return apellido;
-	}
-
-	public void setApellido(String apellido) {
-		this.apellido = apellido;
-	}
-
-	public String getEmailInstitucional() {
-		return emailInstitucional;
-	}
-
-	public void setEmailInstitucional(String emailInstitucional) {
-		this.emailInstitucional = emailInstitucional;
-	}
-
-	public String getEmailPersonal() {
-		return emailpersonal;
-	}
-
-	public void setEmailPersonal(String emailpersonal) {
-		this.emailpersonal = emailpersonal;
-	}
-
-	public String getDpi() {
-		return dpi;
-	}
-
-	public void setDpi(String dpi) {
-		this.dpi = dpi;
-	}
-
-	public String getTelefono() {
-		return telefono;
-	}
-
-	public void setTelefono(String telefono) {
-		this.telefono = telefono;
-	}
-
-	public String getEspecialidad() {
-		return especialidad;
-	}
-
-	public void setEspecialidad(String especialidad) {
-		this.especialidad = especialidad;
-	}
-
-	public LocalDate getFechaContratacion() {
-		return fechaContratacion;
-	}
-
-	public void setFechaContratacion(LocalDate fechaContratacion) {
-		this.fechaContratacion = fechaContratacion;
-	}
-
-	public Boolean getEstado() {
-		return activo;
-	}
-
-	public void setEstado(Boolean estado) {
-		this.activo = estado;
-	}
-
-	public LocalDateTime getFechaCreacion() {
-		return fechaCreacion;
-	}
-
-	public void setFechaCreacion(LocalDateTime fechaCreacion) {
-		this.fechaCreacion = fechaCreacion;
-	}
-	
-	
 	
 }
