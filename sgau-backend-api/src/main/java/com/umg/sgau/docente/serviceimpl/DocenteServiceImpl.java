@@ -44,6 +44,7 @@ public class DocenteServiceImpl implements DocenteService {
     public DocenteEntity buscarPorDpi(String dpi) {
         return docenteRepository.findAll().stream()
         		.filter(docente ->docente.getDpi().equals(dpi))
+        		.filter(DocenteEntity::getActivo)
         		.findFirst()
         		.orElseThrow(() -> new RuntimeException("No se encontró ningún docente con el DPI: " + dpi));
     }
@@ -56,7 +57,9 @@ public class DocenteServiceImpl implements DocenteService {
     
     @Override
     public List<DocenteEntity> obtenerTodos(){
-    	return docenteRepository.findAll();
+    	return docenteRepository.findAll().stream()
+    			.filter(DocenteEntity::getActivo)
+    			.collect(Collectors.toList());
     }
 
     @Override
@@ -64,6 +67,7 @@ public class DocenteServiceImpl implements DocenteService {
         return docenteRepository.findAll().stream()
         		.filter(docente -> docente.getEspecialidad() !=null &&
         				docente.getEspecialidad().toLowerCase().contains(especialidad.toLowerCase()))
+        		.filter(DocenteEntity::getActivo)
         		.collect(Collectors.toList());
     }
     
@@ -108,7 +112,8 @@ public class DocenteServiceImpl implements DocenteService {
 
     @Override
     public Page<DocenteEntity> obtenerTodosPaginados(Pageable pageable) {
-        return docenteRepository.findAll(pageable);
+        return docenteRepository.findByActivoTrue(pageable);
+    		
     }
 
     @Override

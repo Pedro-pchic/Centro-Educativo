@@ -25,5 +25,7 @@ public interface DocenteRepository extends JpaRepository<DocenteEntity, Long> {
 	    String dpi, 
 	    Pageable pageable
 	);
+	
+	Page<DocenteEntity> findByActivoTrue(Pageable pageable);
 
 }
