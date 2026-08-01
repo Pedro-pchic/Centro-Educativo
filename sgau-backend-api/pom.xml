@@ -8,14 +8,12 @@
 		<version>4.1.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-
 	<groupId>com.umg</groupId>
-    <artifactId>sgau-backend-api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>sgau-backend-api</name>
-    <description>Sistema de Gestión Académica Universitaria</description>
-    <packaging>jar</packaging>
-
+   <artifactId>sgau-backend-api</artifactId>
+   <version>0.0.1-SNAPSHOT</version>
+   <name>sgau-backend-api</name>
+   <description>Sistema de Gestión Académica Universitaria</description>
+   <packaging>jar</packaging>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
@@ -36,7 +34,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -74,12 +71,11 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-    		<groupId>org.springdoc</groupId>
-    		<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-    		<version>2.8.10</version>
+   		<groupId>org.springdoc</groupId>
+   		<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+   		<version>2.8.10</version>
 		</dependency>		
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -132,5 +128,5 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
+
