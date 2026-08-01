@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
@@ -20,23 +21,30 @@ public class ColegiaturaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     @Column(nullable = false, length = 20)
     private String mes;
+
 
     @Column(nullable = false, length = 20)
     private String ciclo;
 
-    @Column(nullable = false)
-    private Double monto;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal monto;
+
 
     @Column(nullable = false)
-    private Boolean pagado;
+    private Boolean pagado = false;
+
 
     @Column(nullable = false)
-    private Boolean activo;
+    private Boolean activo = true;
+
 
     @Column(name = "fecha_pago")
     private LocalDateTime fechaPago;
+
 
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
@@ -50,17 +58,24 @@ public class ColegiaturaEntity {
     private EstudianteEntity estudiante;
 
 
+
     @PrePersist
-    protected void alPersistir() {
+    protected void alPersistir(){
 
-        this.fechaCreacion = LocalDateTime.now();
+        if(this.fechaCreacion == null){
+            this.fechaCreacion = LocalDateTime.now();
+        }
 
-        if (this.pagado == null) {
+        if(this.pagado == null){
             this.pagado = false;
         }
 
-        if (this.activo == null) {
+        if(this.activo == null){
             this.activo = true;
+        }
+
+        if(Boolean.TRUE.equals(this.pagado) && this.fechaPago == null){
+            this.fechaPago = LocalDateTime.now();
         }
     }
 }

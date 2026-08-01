@@ -1,6 +1,5 @@
 package com.umg.sgau.colegiatura.mapper;
 
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,104 +9,105 @@ import com.umg.sgau.colegiatura.entity.ColegiaturaEntity;
 import com.umg.sgau.estudiante.entity.EstudianteEntity;
 
 
-
 public class ColegiaturaMapper {
 
 
-    private ColegiaturaMapper(){
+    private ColegiaturaMapper() {
     }
 
 
 
-    public static ColegiaturaEntity aEntidad(
+    public static ColegiaturaEntity toEntity(
             ColegiaturaRequestDTO dto,
-            EstudianteEntity estudiante){
+            EstudianteEntity estudiante) {
 
 
-        ColegiaturaEntity colegiatura =
-                new ColegiaturaEntity();
+        ColegiaturaEntity entity = new ColegiaturaEntity();
 
 
-        colegiatura.setMes(dto.getMes());
+        entity.setMes(dto.getMes());
 
-        colegiatura.setCiclo(dto.getCiclo());
+        entity.setCiclo(dto.getCiclo());
 
-        colegiatura.setMonto(dto.getMonto());
-
-        colegiatura.setPagado(dto.getPagado());
-
-        colegiatura.setFechaPago(dto.getFechaPago());
+        entity.setMonto(dto.getMonto());
 
 
-        // ESTE ERA EL QUE FALTABA
-        colegiatura.setEstudiante(estudiante);
+        entity.setPagado(
+                dto.getPagado() != null
+                        ? dto.getPagado()
+                        : false
+        );
 
 
-        return colegiatura;
+        entity.setFechaPago(
+                dto.getFechaPago()
+        );
 
+
+        entity.setEstudiante(
+                estudiante
+        );
+
+
+        return entity;
     }
 
 
 
 
-    public static ColegiaturaResponseDTO aResponseDTO(
-            ColegiaturaEntity colegiatura){
+    public static ColegiaturaResponseDTO toDTO(
+            ColegiaturaEntity entity) {
 
 
         ColegiaturaResponseDTO dto =
                 new ColegiaturaResponseDTO();
 
 
+        dto.setId(entity.getId());
 
-        dto.setId(colegiatura.getId());
+        dto.setMes(entity.getMes());
 
-        dto.setMes(colegiatura.getMes());
+        dto.setCiclo(entity.getCiclo());
 
-        dto.setCiclo(colegiatura.getCiclo());
+        dto.setMonto(entity.getMonto());
 
-        dto.setMonto(colegiatura.getMonto());
+        dto.setPagado(entity.getPagado());
 
-        dto.setPagado(colegiatura.getPagado());
-
-        dto.setActivo(colegiatura.getActivo());
+        dto.setActivo(entity.getActivo());
 
         dto.setFechaPago(
-                colegiatura.getFechaPago()
+                entity.getFechaPago()
         );
-
 
         dto.setFechaCreacion(
-                colegiatura.getFechaCreacion()
+                entity.getFechaCreacion()
         );
 
 
-
-        if(colegiatura.getEstudiante()!=null){
+        if(entity.getEstudiante()!=null){
 
             dto.setIdEstudiante(
-                    colegiatura.getEstudiante().getId()
+                    entity.getEstudiante().getId()
             );
-
         }
 
 
         return dto;
-
     }
 
 
 
 
-    public static List<ColegiaturaResponseDTO> aResponseDTOList(
-            List<ColegiaturaEntity> lista){
+
+    public static List<ColegiaturaResponseDTO> toDTOList(
+            List<ColegiaturaEntity> lista) {
 
 
         return lista.stream()
-                .map(ColegiaturaMapper::aResponseDTO)
+                .map(ColegiaturaMapper::toDTO)
                 .collect(Collectors.toList());
 
     }
 
-
-}  
+}
 

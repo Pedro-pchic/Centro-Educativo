@@ -1,50 +1,49 @@
 package com.umg.sgau.colegiatura.serviceimpl;
 
 
-import com.umg.sgau.colegiatura.entity.ColegiaturaEntity;
-import com.umg.sgau.colegiatura.exception.ColegiaturaNoEncontradaException;
-import com.umg.sgau.colegiatura.repository.ColegiaturaRepository;
-import com.umg.sgau.colegiatura.service.ColegiaturaService;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
+import com.umg.sgau.colegiatura.dto.ColegiaturaRequestDTO;
+import com.umg.sgau.colegiatura.dto.ColegiaturaResponseDTO;
+import com.umg.sgau.colegiatura.entity.ColegiaturaEntity;
+import com.umg.sgau.colegiatura.exception.ColegiaturaNoEncontradaException;
+import com.umg.sgau.colegiatura.mapper.ColegiaturaMapper;
+import com.umg.sgau.colegiatura.repository.ColegiaturaRepository;
+import com.umg.sgau.colegiatura.service.ColegiaturaService;
+
+import com.umg.sgau.estudiante.entity.EstudianteEntity;
+import com.umg.sgau.estudiante.exception.EstudianteNoEncontradoException;
+import com.umg.sgau.estudiante.repository.EstudianteRepository;
 
 
 @Service
+@Transactional
 public class ColegiaturaServiceimpl 
         implements ColegiaturaService {
 
 
+
     private final ColegiaturaRepository colegiaturaRepository;
+
+    private final EstudianteRepository estudianteRepository;
 
 
 
     public ColegiaturaServiceimpl(
-            ColegiaturaRepository colegiaturaRepository){
-
-        this.colegiaturaRepository =
-                colegiaturaRepository;
-
-    }
+            ColegiaturaRepository colegiaturaRepository,
+            EstudianteRepository estudianteRepository) {
 
 
+        this.colegiaturaRepository = colegiaturaRepository;
 
-
-
-    @Override
-    public ColegiaturaEntity crear(
-            ColegiaturaEntity colegiatura){
-
-
-        colegiatura.setActivo(true);
-
-
-        return colegiaturaRepository.save(colegiatura);
+        this.estudianteRepository = estudianteRepository;
 
     }
 
@@ -53,56 +52,70 @@ public class ColegiaturaServiceimpl
 
 
     @Override
-    public ColegiaturaEntity obtenerPorId(Long id){
+    public ColegiaturaResponseDTO crear(
+            ColegiaturaRequestDTO request) {
 
 
-        Optional<ColegiaturaEntity> encontrada =
-                colegiaturaRepository.findById(id);
+        validarDatosPago(request);
 
 
 
-        if(encontrada.isEmpty()){
+        EstudianteEntity estudiante =
+                estudianteRepository
+                .findByIdAndActivoTrue(
+                        request.getIdEstudiante()
+                )
+                .orElseThrow(
+                        () -> new EstudianteNoEncontradoException(
+                                request.getIdEstudiante()
+                        )
+                );
 
-            throw new ColegiaturaNoEncontradaException(id);
+
+
+
+        boolean existe =
+                colegiaturaRepository
+                .existsByEstudianteAndMesAndCicloAndActivoTrue(
+                        estudiante,
+                        request.getMes(),
+                        request.getCiclo()
+                );
+
+
+
+        if(existe){
+
+            throw new RuntimeException(
+                    "Ya existe una colegiatura activa para este estudiante"
+            );
 
         }
 
 
 
-        ColegiaturaEntity colegiatura =
-                encontrada.get();
+
+
+        ColegiaturaEntity entity =
+                ColegiaturaMapper.toEntity(
+                        request,
+                        estudiante
+                );
 
 
 
-        if(!Boolean.TRUE.equals(
-                colegiatura.getActivo())){
-
-
-            throw new ColegiaturaNoEncontradaException(id);
-
-        }
+        entity.setActivo(true);
 
 
 
-        return colegiatura;
-
-
-    }
-
+        ColegiaturaEntity guardada =
+                colegiaturaRepository.save(entity);
 
 
 
-
-
-    @Override
-    public List<ColegiaturaEntity> obtenerTodos(){
-
-
-        return colegiaturaRepository.findAll()
-                .stream()
-                .filter(c ->
-                    Boolean.TRUE.equals(c.getActivo()))
-                .collect(Collectors.toList());
+        return ColegiaturaMapper.toDTO(
+                guardada
+        );
 
     }
 
@@ -112,33 +125,148 @@ public class ColegiaturaServiceimpl
 
 
 
+
     @Override
-    public ColegiaturaEntity actualizar(
+    @Transactional(readOnly = true)
+    public ColegiaturaResponseDTO obtenerPorId(
+            Long id) {
+
+
+
+        ColegiaturaEntity entity =
+                colegiaturaRepository
+                .findByIdAndActivoTrue(id)
+                .orElseThrow(
+                        () -> new ColegiaturaNoEncontradaException(id)
+                );
+
+
+
+        return ColegiaturaMapper.toDTO(entity);
+
+    }
+
+
+
+
+
+
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ColegiaturaResponseDTO> obtenerTodos() {
+
+
+
+        return ColegiaturaMapper.toDTOList(
+                colegiaturaRepository.findAllByActivoTrue()
+        );
+
+    }
+
+
+    @Override
+    public ColegiaturaResponseDTO actualizar(
             Long id,
-            ColegiaturaEntity colegiatura){
+            ColegiaturaRequestDTO request) {
+
+
+
+        validarDatosPago(request);
+
+
 
 
         ColegiaturaEntity actual =
-                obtenerPorId(id);
+                colegiaturaRepository
+                .findByIdAndActivoTrue(id)
+                .orElseThrow(
+                        () -> new ColegiaturaNoEncontradaException(id)
+                );
 
 
 
-        actual.setMes(colegiatura.getMes());
 
-        actual.setCiclo(colegiatura.getCiclo());
 
-        actual.setMonto(colegiatura.getMonto());
+        boolean existe =
+                colegiaturaRepository
+                .existsByEstudianteAndMesAndCicloAndActivoTrue(
+                        actual.getEstudiante(),
+                        request.getMes(),
+                        request.getCiclo()
+                );
 
-        actual.setPagado(colegiatura.getPagado());
 
-        actual.setFechaPago(colegiatura.getFechaPago());
 
-        actual.setEstudiante(
-                colegiatura.getEstudiante()
+        if(existe &&
+                (!actual.getMes().equals(request.getMes())
+                ||
+                !actual.getCiclo().equals(request.getCiclo()))) {
+
+
+            throw new RuntimeException(
+                    "Ya existe otra colegiatura activa con esos datos"
+            );
+
+        }
+
+
+
+
+
+        actual.setMes(
+                request.getMes()
         );
 
 
-        return colegiaturaRepository.save(actual);
+        actual.setCiclo(
+                request.getCiclo()
+        );
+
+
+        actual.setMonto(
+                request.getMonto()
+        );
+
+
+        actual.setPagado(
+                request.getPagado()!=null
+                ? request.getPagado()
+                : false
+        );
+
+
+
+        if(Boolean.TRUE.equals(actual.getPagado())){
+
+
+            actual.setFechaPago(
+                    request.getFechaPago()!=null
+                    ? request.getFechaPago()
+                    : LocalDateTime.now()
+            );
+
+
+        }else{
+
+
+            actual.setFechaPago(null);
+
+        }
+
+
+
+
+
+        ColegiaturaEntity actualizada =
+                colegiaturaRepository.save(actual);
+
+
+
+        return ColegiaturaMapper.toDTO(
+                actualizada
+        );
 
     }
 
@@ -150,24 +278,82 @@ public class ColegiaturaServiceimpl
 
 
     @Override
-    public void eliminar(Long id){
-
-
-        ColegiaturaEntity colegiatura =
-                obtenerPorId(id);
+    public void eliminar(Long id) {
 
 
 
-        colegiatura.setActivo(false);
+        ColegiaturaEntity entity =
+                colegiaturaRepository
+                .findByIdAndActivoTrue(id)
+                .orElseThrow(
+                        () -> new ColegiaturaNoEncontradaException(id)
+                );
 
 
 
-        colegiaturaRepository.save(colegiatura);
+        entity.setActivo(false);
 
+
+
+        colegiaturaRepository.save(entity);
 
     }
 
 
+
+
+
+
+
+
+
+    private void validarDatosPago(
+            ColegiaturaRequestDTO request) {
+
+
+
+        if(request.getMonto()==null ||
+                request.getMonto()
+                .compareTo(BigDecimal.ZERO)<=0){
+
+
+            throw new IllegalArgumentException(
+                    "El monto debe ser mayor a cero"
+            );
+
+        }
+
+
+
+
+
+        if(Boolean.TRUE.equals(request.getPagado())
+                &&
+                request.getFechaPago()==null){
+
+
+            throw new IllegalArgumentException(
+                    "Debe ingresar fecha de pago cuando la colegiatura está pagada"
+            );
+
+        }
+
+
+
+
+
+        if(request.getFechaPago()!=null &&
+                request.getFechaPago()
+                .isAfter(LocalDateTime.now())){
+
+
+            throw new IllegalArgumentException(
+                    "La fecha de pago no puede ser futura"
+            );
+
+        }
+
+    }
 
 }
 

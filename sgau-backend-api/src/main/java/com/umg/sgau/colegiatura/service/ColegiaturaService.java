@@ -1,18 +1,34 @@
 package com.umg.sgau.colegiatura.service;
 
-import com.umg.sgau.colegiatura.entity.ColegiaturaEntity;
+import com.umg.sgau.colegiatura.dto.ColegiaturaRequestDTO;
+import com.umg.sgau.colegiatura.dto.ColegiaturaResponseDTO;
 
 import java.util.List;
 
 public interface ColegiaturaService {
 
-    ColegiaturaEntity crear(ColegiaturaEntity colegiatura);
 
-    ColegiaturaEntity obtenerPorId(Long id);
+    ColegiaturaResponseDTO crear(
+            ColegiaturaRequestDTO request
+    );
 
-    List<ColegiaturaEntity> obtenerTodos();
 
-    ColegiaturaEntity actualizar(Long id, ColegiaturaEntity colegiatura);
+    ColegiaturaResponseDTO obtenerPorId(
+            Long id
+    );
 
-    void eliminar(Long id);
+
+    List<ColegiaturaResponseDTO> obtenerTodos();
+
+
+    ColegiaturaResponseDTO actualizar(
+            Long id,
+            ColegiaturaRequestDTO request
+    );
+
+
+    void eliminar(
+            Long id
+    );
+
 }
