@@ -1,8 +1,9 @@
 package com.umg.sgau.usuario.controller;
-import com.umg.sgau.exception.UsuarioNoEncontradoException;
+
 import com.umg.sgau.usuario.dto.UsuarioRequestDTO;
 import com.umg.sgau.usuario.dto.UsuarioResponseDTO;
 import com.umg.sgau.usuario.entity.UsuarioEntity;
+import com.umg.sgau.usuario.exception.UsuarioNoEncontradoException;
 import com.umg.sgau.usuario.mapper.UsuarioMapper;
 import com.umg.sgau.usuario.service.UsuarioService;
 import org.springframework.http.HttpStatus;
