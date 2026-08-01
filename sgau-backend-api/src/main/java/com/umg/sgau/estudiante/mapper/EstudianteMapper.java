@@ -17,6 +17,7 @@ public class EstudianteMapper {
         EstudianteEntity estudiante = new EstudianteEntity();
 
         estudiante.setCodigoEstudiante(dto.getCodigoEstudiante());
+        estudiante.setCarnet(dto.getCarnet());
         estudiante.setEmail(dto.getEmail());
         estudiante.setNombre(dto.getNombre());
         estudiante.setApellido(dto.getApellido());
@@ -31,9 +32,8 @@ public class EstudianteMapper {
         EstudianteResponseDTO dto = new EstudianteResponseDTO();
 
         dto.setId(estudiante.getId());
-        dto.setCodigoEstudiante(
-                estudiante.getCodigoEstudiante()
-        );
+        dto.setCodigoEstudiante(estudiante.getCodigoEstudiante());
+        dto.setCarnet(estudiante.getCarnet());
         dto.setEmail(estudiante.getEmail());
         dto.setNombre(estudiante.getNombre());
         dto.setApellido(estudiante.getApellido());
