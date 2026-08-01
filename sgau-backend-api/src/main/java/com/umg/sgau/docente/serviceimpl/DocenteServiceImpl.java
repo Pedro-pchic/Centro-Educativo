@@ -30,7 +30,6 @@ public class DocenteServiceImpl implements DocenteService {
         if (yaExisteDpiOEmail) {
             throw new IllegalArgumentException("El DPI o el correo institucional ya se encuentran registrados.");
         }
-
         return docenteRepository.save(nuevoDocente);
     }
 
@@ -114,6 +113,8 @@ public class DocenteServiceImpl implements DocenteService {
 
     @Override
     public Page<DocenteEntity> buscarPorFiltros(String filtro, Pageable pageable) {
-        return docenteRepository.buscarPorMultiplesFiltros(filtro, pageable);
+    	return docenteRepository.findByNombreContainingIgnoreCaseOrApellidoContainingIgnoreCaseOrEmailInstitucionalContainingIgnoreCaseOrEspecialidadContainingIgnoreCaseOrDpiContaining(
+    		    filtro, filtro, filtro, filtro, filtro, pageable
+    		);
     }
 }

@@ -17,12 +17,13 @@ public interface DocenteRepository extends JpaRepository<DocenteEntity, Long> {
 	
 	Optional<DocenteEntity> findById (Long id);
 	
-	@Query("SELECT d FROM DocenteEntity d WHERE " +
-	       "LOWER(d.nombre) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
-	       "LOWER(d.apellido) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
-	       "LOWER(d.emailInstitucional) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
-	       "LOWER(d.especialidad) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
-	       "d.dpi LIKE CONCAT('%', :filtro, '%')")
-	Page<DocenteEntity> buscarPorMultiplesFiltros(@Param("filtro") String filtro, Pageable pageable);
+	Page<DocenteEntity> findByNombreContainingIgnoreCaseOrApellidoContainingIgnoreCaseOrEmailInstitucionalContainingIgnoreCaseOrEspecialidadContainingIgnoreCaseOrDpiContaining(
+	    String nombre, 
+	    String apellido, 
+	    String email, 
+	    String especialidad, 
+	    String dpi, 
+	    Pageable pageable
+	);
 
 }
