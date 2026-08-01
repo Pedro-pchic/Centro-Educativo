@@ -51,7 +51,7 @@ public class DocenteController {
     
     // Buscar por ID
     @GetMapping("/{id}") 
-    public ResponseEntity<?> buscarPorId(@PathVariable String id) { 
+    public ResponseEntity<?> buscarPorId(@PathVariable Long id) { 
         try { 
             DocenteEntity docente = docenteService.buscarPorId(id); 
             return ResponseEntity.ok(DocenteMapper.aResponseDTO(docente)); 

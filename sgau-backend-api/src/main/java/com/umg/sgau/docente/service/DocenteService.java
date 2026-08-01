@@ -15,7 +15,7 @@ public interface DocenteService {
 	
 	DocenteEntity buscarPorDpi(String dpi);
 	
-	DocenteEntity buscarPorId(String id);
+	DocenteEntity buscarPorId(Long id);
 	
 	List <DocenteEntity> obtenerTodos();
 	

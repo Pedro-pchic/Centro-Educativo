@@ -15,17 +15,8 @@ import com.umg.sgau.docente.entity.DocenteEntity;
 @Repository
 public interface DocenteRepository extends JpaRepository<DocenteEntity, Long> {
 	
-	Optional<DocenteEntity> findByDpi(String dpi);
+	Optional<DocenteEntity> findById (Long id);
 	
-	Optional<DocenteEntity> findById(String id);
-	
-	Optional<DocenteEntity> findByEmailInstitucional(String emailInstitucional);
-	
-	List<DocenteEntity> findByActivoTrue();
-	
-	List<DocenteEntity> findByEspecialidadContainingIgnoreCase(String especialidad);
-	
-
 	@Query("SELECT d FROM DocenteEntity d WHERE " +
 	       "LOWER(d.nombre) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
 	       "LOWER(d.apellido) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
