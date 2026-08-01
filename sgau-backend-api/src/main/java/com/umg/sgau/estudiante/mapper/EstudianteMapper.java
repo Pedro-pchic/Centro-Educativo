@@ -20,7 +20,6 @@ public class EstudianteMapper {
         estudiante.setEmail(dto.getEmail());
         estudiante.setNombre(dto.getNombre());
         estudiante.setApellido(dto.getApellido());
-        estudiante.setActivo(dto.getActivo());
 
         return estudiante;
     }

@@ -1,4 +1,4 @@
-package com.umg.sgau.exception;
+package com.umg.sgau.estudiante.exception;
 
 public class EstudianteNoEncontradoException extends RuntimeException {
 

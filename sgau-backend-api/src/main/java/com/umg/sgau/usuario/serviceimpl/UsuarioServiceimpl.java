@@ -1,6 +1,7 @@
 package com.umg.sgau.usuario.serviceimpl;
-import com.umg.sgau.exception.UsuarioNoEncontradoException;
+
 import com.umg.sgau.usuario.entity.UsuarioEntity;
+import com.umg.sgau.usuario.exception.UsuarioNoEncontradoException;
 import com.umg.sgau.usuario.repository.UsuarioRepository;
 import com.umg.sgau.usuario.service.UsuarioService;
 

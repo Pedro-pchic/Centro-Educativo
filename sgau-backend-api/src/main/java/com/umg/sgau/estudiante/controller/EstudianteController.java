@@ -1,6 +1,6 @@
 package com.umg.sgau.estudiante.controller;
 
-import com.umg.sgau.exception.EstudianteNoEncontradoException;
+import com.umg.sgau.estudiante.exception.*;
 import com.umg.sgau.estudiante.dto.EstudianteRequestDTO;
 import com.umg.sgau.estudiante.dto.EstudianteResponseDTO;
 import com.umg.sgau.estudiante.entity.EstudianteEntity;

@@ -1,6 +1,6 @@
 package com.umg.sgau.estudiante.serviceimpl;
 
-import com.umg.sgau.exception.EstudianteNoEncontradoException;
+import com.umg.sgau.estudiante.exception.*;
 import com.umg.sgau.estudiante.entity.EstudianteEntity;
 import com.umg.sgau.estudiante.repository.EstudianteRepository;
 import com.umg.sgau.estudiante.service.EstudianteService;
@@ -24,6 +24,7 @@ public class EstudianteServiceimpl implements EstudianteService {
 
     @Override
     public EstudianteEntity crear(EstudianteEntity estudiante) {
+    	estudiante.setActivo(true);
 
         return estudianteRepository.save(estudiante);
     }
@@ -105,16 +106,4 @@ public class EstudianteServiceimpl implements EstudianteService {
         estudianteRepository.save(estudiante);
     }
 
-    public List<String> obtenerNombresEstudiantesActivos() {
-
-        return estudianteRepository.findAll()
-                .stream()
-                .filter(estudiante ->
-                        Boolean.TRUE.equals(estudiante.getActivo()))
-                .map(estudiante ->
-                        estudiante.getNombre()
-                        + " "
-                        + estudiante.getApellido())
-                .collect(Collectors.toList());
-    }
 }
