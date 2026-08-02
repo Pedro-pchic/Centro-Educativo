@@ -14,9 +14,13 @@ import com.umg.sgau.curso.dto.CursoResponseDTO;
 import com.umg.sgau.curso.entity.CursoEntity;
 import com.umg.sgau.curso.exception.CursoDuplicadoException;
 import com.umg.sgau.curso.exception.CursoNoEncontradoException;
+import com.umg.sgau.curso.exception.DocenteInactivoParaCursoException;
 import com.umg.sgau.curso.mapper.CursoMapper;
 import com.umg.sgau.curso.repository.CursoRepository;
 import com.umg.sgau.curso.service.CursoService;
+import com.umg.sgau.docente.entity.DocenteEntity;
+import com.umg.sgau.docente.exception.DocenteNoEncontradoException;
+import com.umg.sgau.docente.repository.DocenteRepository;
 
 @Service
 @Transactional
@@ -24,13 +28,16 @@ public class CursoServiceImpl implements CursoService {
 
     private final CursoRepository cursoRepository;
     private final CarreraRepository carreraRepository;
+    private final DocenteRepository docenteRepository;
 
     public CursoServiceImpl(
             CursoRepository cursoRepository,
-            CarreraRepository carreraRepository) {
+            CarreraRepository carreraRepository,
+            DocenteRepository docenteRepository) {
 
         this.cursoRepository = cursoRepository;
         this.carreraRepository = carreraRepository;
+        this.docenteRepository = docenteRepository;
     }
 
     @Override
@@ -46,12 +53,18 @@ public class CursoServiceImpl implements CursoService {
                 request.getCarreraId()
         );
 
-        CursoEntity curso = CursoMapper.aEntidad(
-                request,
-                carrera
+        DocenteEntity docente = obtenerDocenteActivo(
+                request.getDocenteId()
         );
 
-        CursoEntity cursoGuardado = cursoRepository.save(curso);
+        CursoEntity curso = CursoMapper.aEntidad(
+                request,
+                carrera,
+                docente
+        );
+
+        CursoEntity cursoGuardado =
+                cursoRepository.save(curso);
 
         return CursoMapper.aResponseDTO(cursoGuardado);
     }
@@ -139,10 +152,15 @@ public class CursoServiceImpl implements CursoService {
                 request.getCarreraId()
         );
 
+        DocenteEntity docente = obtenerDocenteActivo(
+                request.getDocenteId()
+        );
+
         CursoMapper.actualizarEntidad(
                 curso,
                 request,
-                carrera
+                carrera,
+                docente
         );
 
         CursoEntity cursoActualizado =
@@ -177,7 +195,8 @@ public class CursoServiceImpl implements CursoService {
 
         if (Boolean.TRUE.equals(curso.getActivo())) {
             throw new CursoNoEncontradoException(
-                "El curso con ID " + id + " ya se encuentra activo"
+                "El curso con ID " + id
+                + " ya se encuentra activo"
             );
         }
 
@@ -185,7 +204,12 @@ public class CursoServiceImpl implements CursoService {
                 curso.getCarrera().getId()
         );
 
+        DocenteEntity docente = obtenerDocenteActivo(
+                curso.getDocente().getId()
+        );
+
         curso.setCarrera(carrera);
+        curso.setDocente(docente);
         curso.setActivo(true);
 
         return CursoMapper.aResponseDTO(
@@ -193,17 +217,39 @@ public class CursoServiceImpl implements CursoService {
         );
     }
 
-    private CarreraEntity obtenerCarreraActiva(Long carreraId) {
+    private CarreraEntity obtenerCarreraActiva(
+            Long carreraId) {
 
         return carreraRepository
                 .findByIdAndActivoTrue(carreraId)
                 .orElseThrow(
-                    () -> new CarreraNoEncontradaException(carreraId)
+                    () -> new CarreraNoEncontradaException(
+                            carreraId
+                    )
                 );
+    }
+
+    private DocenteEntity obtenerDocenteActivo(
+            Long docenteId) {
+
+        DocenteEntity docente = docenteRepository
+                .findById(docenteId)
+                .orElseThrow(
+                    () -> new DocenteNoEncontradoException(
+                            docenteId
+                    )
+                );
+
+        if (!Boolean.TRUE.equals(docente.getActivo())) {
+            throw new DocenteInactivoParaCursoException(
+                    docenteId
+            );
+        }
+
+        return docente;
     }
 
     private String normalizarCodigo(String codigo) {
         return codigo.trim().toUpperCase();
     }
 }
-
