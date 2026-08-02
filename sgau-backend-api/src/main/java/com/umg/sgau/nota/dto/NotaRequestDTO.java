@@ -19,8 +19,6 @@ public class NotaRequestDTO {
     private String cicloAcademico;
     private BigDecimal zona;
     private BigDecimal examenFinal;
-    private BigDecimal notaFinal;
     private String estado;
-    private Boolean activo;
     private LocalDate fechaRegistro;
 }

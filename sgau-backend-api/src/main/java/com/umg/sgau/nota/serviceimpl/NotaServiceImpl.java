@@ -1,7 +1,5 @@
 package com.umg.sgau.nota.serviceimpl;
 
-import com.umg.sgau.curso.entity.CursoEntity;
-import com.umg.sgau.curso.mapper.CursoMapper;
 import com.umg.sgau.inscripcion.entity.InscripcionEntity;
 import com.umg.sgau.inscripcion.exception.InscripcionNoEncontradaException;
 import com.umg.sgau.inscripcion.repository.InscripcionRepository;
@@ -14,9 +12,6 @@ import com.umg.sgau.nota.repository.NotaRepository;
 import com.umg.sgau.nota.service.NotaService;
 
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,8 +33,10 @@ public class NotaServiceImpl implements NotaService {
     @Override
     public NotaResponseDTO registrarNota(NotaRequestDTO nuevaNota) {
         boolean yaExiste = notaRepository.findAll().stream()
-                .anyMatch(nota -> 
-                        nota.getInscripcion() != null && nuevaNota.getInscripcionId() != null &&
+                .filter(nota -> Boolean.TRUE.equals(nota.getActivo()))
+                .anyMatch(nota ->
+                        nota.getInscripcion() != null
+                        && nuevaNota.getInscripcionId() != null &&
                         nota.getInscripcion().getId().equals(nuevaNota.getInscripcionId())
                 );
 
@@ -65,19 +62,30 @@ public class NotaServiceImpl implements NotaService {
     // Actualizar calificaciones
     @Override
     public NotaResponseDTO actualizarNota(Long id, NotaRequestDTO notaActualizada) {
+        NotaEntity notaExistente = notaRepository.findById(id)
+                .filter(nota -> Boolean.TRUE.equals(nota.getActivo()))
+                .orElseThrow(() -> new NotaNoEncontradaException(id));
 
-        return NotaMapper.aResponseDTO(notaRepository.findById(id)
-                .map(notaExistente -> {
-                	
-                    notaExistente.setCicloAcademico(notaActualizada.getCicloAcademico());
-                    notaExistente.setZona(notaActualizada.getZona());
-                    notaExistente.setExamenFinal(notaActualizada.getExamenFinal());
-                    notaExistente.setEstado(notaActualizada.getEstado());
-                    notaExistente.setActivo(notaActualizada.getActivo());
-                    
-                    return notaRepository.save(notaExistente);
-                })
-                .orElseThrow(() -> new NotaNoEncontradaException(id)));
+        notaExistente.setCicloAcademico(notaActualizada.getCicloAcademico());
+        notaExistente.setZona(notaActualizada.getZona());
+        notaExistente.setExamenFinal(notaActualizada.getExamenFinal());
+        notaExistente.setEstado(notaActualizada.getEstado());
+
+        if (notaActualizada.getFechaRegistro() != null) {
+            notaExistente.setFechaRegistro(notaActualizada.getFechaRegistro());
+        }
+
+        NotaEntity guardada = notaRepository.save(notaExistente);
+        return NotaMapper.aResponseDTO(guardada);
+    }
+
+    @Override
+    public void eliminar(Long id) {
+        NotaEntity nota = notaRepository.findById(id)
+                .orElseThrow(() -> new NotaNoEncontradaException(id));
+
+        nota.setActivo(false);
+        notaRepository.save(nota);
     }
 
 
@@ -95,10 +103,21 @@ public class NotaServiceImpl implements NotaService {
     }
 
     @Override
+    public NotaResponseDTO obtenerPorId(Long id) {
+        NotaEntity nota = notaRepository.findById(id)
+                .filter(n -> Boolean.TRUE.equals(n.getActivo()))
+                .orElseThrow(() -> new NotaNoEncontradaException(id));
+
+        return NotaMapper.aResponseDTO(nota);
+    }
+
+    @Override
     public List<NotaResponseDTO> obtenerPorEstudiante(Long estudianteId) {
         return notaRepository.findAll().stream()
-                .filter(nota -> nota.getInscripcion().getEstudiante() != null && 
-                                nota.getInscripcion().getEstudiante().getId().equals(estudianteId))
+                .filter(nota -> Boolean.TRUE.equals(nota.getActivo()))
+                .filter(nota -> nota.getInscripcion() != null
+                        && nota.getInscripcion().getEstudiante() != null
+                        && nota.getInscripcion().getEstudiante().getId().equals(estudianteId))
                 .map(NotaMapper::aResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -106,8 +125,10 @@ public class NotaServiceImpl implements NotaService {
     @Override
     public List<NotaResponseDTO> obtenerPorCurso(Long cursoId) {
         return notaRepository.findAll().stream()
-                .filter(nota -> nota.getInscripcion().getCurso() != null && 
-                                nota.getInscripcion().getCurso().getId().equals(cursoId))
+                .filter(nota -> Boolean.TRUE.equals(nota.getActivo()))
+                .filter(nota -> nota.getInscripcion() != null
+                        && nota.getInscripcion().getCurso() != null
+                        && nota.getInscripcion().getCurso().getId().equals(cursoId))
                 .map(NotaMapper::aResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -115,8 +136,9 @@ public class NotaServiceImpl implements NotaService {
     @Override
     public List<NotaResponseDTO> obtenerPorInscripcion(Long inscripcionId) {
         return notaRepository.findAll().stream()
-                .filter(nota -> nota.getInscripcion() != null && 
-                                nota.getInscripcion().getId().equals(inscripcionId))
+                .filter(nota -> Boolean.TRUE.equals(nota.getActivo()))
+                .filter(nota -> nota.getInscripcion() != null
+                        && nota.getInscripcion().getId().equals(inscripcionId))
                 .map(NotaMapper::aResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -125,8 +147,12 @@ public class NotaServiceImpl implements NotaService {
     public NotaResponseDTO obtenerPorEstudianteYCurso(Long estudianteId, Long cursoId) {
         // Combinación de filtros y Excepción personalizada
         return notaRepository.findAll().stream()
-                .filter(nota -> nota.getInscripcion().getEstudiante() != null && nota.getInscripcion().getEstudiante().getId().equals(estudianteId) && 
-                                nota.getInscripcion().getCurso() != null && nota.getInscripcion().getCurso().getId().equals(cursoId))
+                .filter(nota -> Boolean.TRUE.equals(nota.getActivo()))
+                .filter(nota -> nota.getInscripcion() != null
+                        && nota.getInscripcion().getEstudiante() != null
+                        && nota.getInscripcion().getEstudiante().getId().equals(estudianteId)
+                        && nota.getInscripcion().getCurso() != null
+                        && nota.getInscripcion().getCurso().getId().equals(cursoId))
                 .findFirst()
                 .map(NotaMapper::aResponseDTO)
                 .orElseThrow(() -> new NotaNoEncontradaException(
@@ -147,9 +173,11 @@ public class NotaServiceImpl implements NotaService {
     @Override
     public Double calcularPromedioEstudiante(Long estudianteId) {
          return notaRepository.findAll().stream()
-                .filter(nota -> nota.getInscripcion().getEstudiante() != null && 
-                                nota.getInscripcion().getEstudiante().getId().equals(estudianteId) &&
-                                nota.getNotaFinal() != null)
+                .filter(nota -> Boolean.TRUE.equals(nota.getActivo()))
+                .filter(nota -> nota.getInscripcion() != null
+                        && nota.getInscripcion().getEstudiante() != null
+                        && nota.getInscripcion().getEstudiante().getId().equals(estudianteId)
+                        && nota.getNotaFinal() != null)
                 .mapToDouble(nota -> nota.getNotaFinal().doubleValue())
                 .average()
                 .orElse(0.0);

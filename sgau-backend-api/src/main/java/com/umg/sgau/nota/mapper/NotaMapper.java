@@ -1,7 +1,5 @@
 package com.umg.sgau.nota.mapper;
 
-import com.umg.sgau.estudiante.entity.EstudianteEntity;
-import com.umg.sgau.curso.entity.CursoEntity;
 import com.umg.sgau.inscripcion.entity.InscripcionEntity;
 import com.umg.sgau.nota.dto.NotaRequestDTO;
 import com.umg.sgau.nota.dto.NotaResponseDTO;
@@ -15,24 +13,19 @@ public class NotaMapper {
     private NotaMapper() {
     }
 
-    public static NotaEntity aEntidad(NotaRequestDTO dto, InscripcionEntity ins) {
+    public static NotaEntity aEntidad(
+            NotaRequestDTO dto,
+            InscripcionEntity inscripcion) {
+
         NotaEntity nota = new NotaEntity();
-        
-        // Mapeo de campos simples
+
         nota.setCicloAcademico(dto.getCicloAcademico());
         nota.setZona(dto.getZona());
         nota.setExamenFinal(dto.getExamenFinal());
-        nota.setNotaFinal(dto.getNotaFinal());
         nota.setEstado(dto.getEstado());
-        nota.setActivo(dto.getActivo());
         nota.setFechaRegistro(dto.getFechaRegistro());
-        
-        // Mapeo de la relación Inscripción
-        if (dto.getInscripcionId() != null) {
-            InscripcionEntity inscripcion = ins;
-            inscripcion.setId(dto.getInscripcionId());
-            nota.setInscripcion(inscripcion);
-        }
+        nota.setActivo(true);
+        nota.setInscripcion(inscripcion);
 
         return nota;
     }

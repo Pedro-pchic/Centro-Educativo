@@ -48,17 +48,32 @@ public class NotaEntity {
 	@Column(name = "fecha_creacion", nullable = false, updatable = false)
 	private LocalDateTime fechaCreacion;
 
-	@PrePersist
-    @PreUpdate	
+    @PrePersist
     public void alPersistir() {
-    	this.fechaCreacion = LocalDateTime.now();
-		if (this.activo == null) {
-			this.activo = true;
-		}
-		
-        // Cálculo automático de la nota final si ambos valores existen
-        BigDecimal zonaPuntos = (this.zona != null) ? this.zona : BigDecimal.ZERO;
-        BigDecimal examenPuntos = (this.examenFinal != null) ? this.examenFinal : BigDecimal.ZERO;
+        this.fechaCreacion = LocalDateTime.now();
+
+        if (this.activo == null) {
+            this.activo = true;
+        }
+
+        if (this.fechaRegistro == null) {
+            this.fechaRegistro = LocalDate.now();
+        }
+
+        calcularNotaFinal();
+    }
+
+    @PreUpdate
+    public void alActualizar() {
+        calcularNotaFinal();
+    }
+
+    private void calcularNotaFinal() {
+        BigDecimal zonaPuntos =
+                this.zona != null ? this.zona : BigDecimal.ZERO;
+        BigDecimal examenPuntos =
+                this.examenFinal != null ? this.examenFinal : BigDecimal.ZERO;
+
         this.notaFinal = zonaPuntos.add(examenPuntos);
     }
     

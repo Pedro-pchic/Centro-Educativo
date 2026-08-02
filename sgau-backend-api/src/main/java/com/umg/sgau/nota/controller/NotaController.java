@@ -2,9 +2,7 @@ package com.umg.sgau.nota.controller;
 
 import com.umg.sgau.nota.dto.NotaRequestDTO;
 import com.umg.sgau.nota.dto.NotaResponseDTO;
-import com.umg.sgau.nota.entity.NotaEntity;
 import com.umg.sgau.nota.exception.NotaNoEncontradaException;
-import com.umg.sgau.nota.mapper.NotaMapper;
 import com.umg.sgau.nota.service.NotaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,6 +61,16 @@ public class NotaController {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(notaService.obtenerPorId(id));
+        } catch (NotaNoEncontradaException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ex.getMessage());
+        }
+    }
+
     @GetMapping("/estudiante/{estudianteId}")
     public ResponseEntity<?> obtenerPorEstudiante(@PathVariable Long estudianteId) {
         try {
@@ -113,6 +121,17 @@ public class NotaController {
             return ResponseEntity.ok(promedio);
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> eliminarNota(@PathVariable Long id) {
+        try {
+            notaService.eliminar(id);
+            return ResponseEntity.noContent().build();
+        } catch (NotaNoEncontradaException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ex.getMessage());
         }
     }
 }
