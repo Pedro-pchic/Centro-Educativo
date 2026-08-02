@@ -26,6 +26,10 @@ public class CursoResponseDTO {
     private String carreraCodigo;
 
     private String carreraNombre;
+    
+    private Long docenteId;
+    
+    private String docenteNombre;
 
     private Boolean activo;
 }

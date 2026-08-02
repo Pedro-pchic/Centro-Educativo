@@ -1,6 +1,7 @@
 package com.umg.sgau.curso.entity;
 
 import com.umg.sgau.carrera.entity.CarreraEntity;
+import com.umg.sgau.docente.entity.DocenteEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -58,10 +59,10 @@ public class CursoEntity {
     )
     private CarreraEntity carrera;
 
-    @Column(
-        name = "activo",
-        nullable = false
-    )
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "docente_id")
+    private DocenteEntity docente;
+    
     @Builder.Default
     private Boolean activo = true;
 }
