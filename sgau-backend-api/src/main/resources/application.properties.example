@@ -1,8 +1,20 @@
-spring.application.name=sgau-backend-api
+spring.application.name=educativo-backend
 
-spring.datasource.url=jdbc:postgresql://localhost:5433/centro_educativo
-spring.datasource.username=admin1
-spring.datasource.password=MiPassword123
+# Conexión a PostgreSQL mediante variables de entorno
+spring.datasource.url=${DB_URL}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+spring.datasource.driver-class-name=org.postgresql.Driver
 
+# JPA / Hibernate
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+# Swagger
+springdoc.swagger-ui.path=/swagger-ui.html
+springdoc.api-docs.path=/api-docs
+
+# Servidor
+server.port=${PORT:9001}

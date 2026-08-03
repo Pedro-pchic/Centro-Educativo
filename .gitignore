@@ -25,3 +25,4 @@ target/
 
 # Configuración local Spring Boot
 **/src/main/resources/application.properties
+/.metadata/
