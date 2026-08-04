@@ -47,3 +47,4 @@ src/main/resources/application-dev.properties
 src/main/resources/application-prod.properties
 
 src/main/resources/application.properties.local
+!src/main/resources/application.properties
