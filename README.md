@@ -4,23 +4,17 @@ Sistema de Gestión Educativa.
 
 ## Integrantes
 
-- Nombre 1
-- Nombre 2
-- Nombre 3
-- Nombre 4
-
-## Tecnologías
+- Pedro Chic
+- Gabriela López
+- Cristian Gómez
+- Celeste Ramírez
+## Backend
 
 - Java 17
 - Spring Boot
-- PostgreSQL
-- Angular
-- Git
-- GitHub
+- PostgreSQL (Neon)
+- Google Cloud Run
 
-## Estructura
+## Base de datos
 
-Centro_Educativo/
-├── educativo-backend/
-├── educativo-frontend/
-└── docs/
+- Neon PostgreSQL
