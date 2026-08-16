@@ -1,8 +1,13 @@
 package com.umg.sgau.config;
 
 import com.umg.sgau.security.JwtAuthenticationFilter;
+
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
+
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,7 +28,8 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
@@ -33,28 +39,72 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http) throws Exception {
 
         http
             .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .exceptionHandling(exceptions -> exceptions
-                .authenticationEntryPoint((request, response, exception) ->
-                    response.sendError(401, "Unauthorized")))
+
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(
+                    SessionCreationPolicy.STATELESS
+                )
+            )
+
+            .exceptionHandling(exceptions ->
+                exceptions.authenticationEntryPoint(
+                    (request, response, exception) -> {
+
+                        response.setStatus(
+                            HttpServletResponse.SC_UNAUTHORIZED
+                        );
+
+                        response.setContentType(
+                            "application/json"
+                        );
+
+                        response.getWriter().write(
+                            """
+                            {
+                              "status": 401,
+                              "error": "Unauthorized",
+                              "message": "Se requiere autenticación válida"
+                            }
+                            """
+                        );
+                    }
+                )
+            )
+
             .authorizeHttpRequests(auth -> auth
+
+                .dispatcherTypeMatchers(
+                    DispatcherType.ERROR
+                )
+                .permitAll()
+
+                .requestMatchers(
+                    "/error"
+                )
+                .permitAll()
+
                 .requestMatchers(
                     "/api/auth/**",
                     "/swagger-ui/**",
                     "/swagger-ui.html",
                     "/api-docs/**",
                     "/v3/api-docs/**"
-                ).permitAll()
-                .anyRequest().authenticated()
+                )
+                .permitAll()
+
+                .anyRequest()
+                .authenticated()
             )
-            .addFilterBefore(jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class);
+
+            .addFilterBefore(
+                jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class
+            );
 
         return http.build();
     }
