@@ -27,6 +27,9 @@ public class UsuarioEntity {
 	private String apellido;
 	@Column(nullable = false)
 	private Boolean activo;
+	@Enumerated(EnumType.STRING)
+	@Column(length = 20)
+	private RolUsuario rol;
 	@Column(name = "fecha_creacion", nullable = false, updatable = false)
 	private LocalDateTime fechaCreacion;
 	@PrePersist
@@ -34,6 +37,9 @@ public class UsuarioEntity {
 	this.fechaCreacion = LocalDateTime.now();
 	if (this.activo == null) {
 	this.activo = true;
+	}
+	if (this.rol == null) {
+	this.rol = RolUsuario.ESTUDIANTE;
 	}
 	}
 
