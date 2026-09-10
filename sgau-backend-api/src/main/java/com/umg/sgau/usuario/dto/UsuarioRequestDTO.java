@@ -1,5 +1,6 @@
 package com.umg.sgau.usuario.dto;
 
+import com.umg.sgau.usuario.entity.RolUsuario;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,5 +13,6 @@ public class UsuarioRequestDTO {
 	private String nombre;
 	private String apellido;
 	private Boolean activo;
+	private RolUsuario rol;
 	
 }
