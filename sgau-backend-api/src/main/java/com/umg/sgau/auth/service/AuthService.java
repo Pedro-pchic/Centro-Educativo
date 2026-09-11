@@ -4,6 +4,8 @@ import com.umg.sgau.auth.dto.LoginRequestDTO;
 import com.umg.sgau.auth.dto.LoginResponseDTO;
 import com.umg.sgau.security.CustomUserDetailsService;
 import com.umg.sgau.security.JwtService;
+import com.umg.sgau.usuario.entity.RolUsuario;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -35,7 +37,15 @@ public class AuthService {
             }
 
             String token = jwtService.generateToken(userDetails);
-            return new LoginResponseDTO(token, "Bearer", userDetails.getUsername());
+            RolUsuario rol = userDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .filter(authority -> authority.startsWith("ROLE_"))
+                    .map(authority -> authority.substring("ROLE_".length()))
+                    .map(RolUsuario::valueOf)
+                    .findFirst()
+                    .orElseThrow(() -> new BadCredentialsException("Usuario sin rol válido"));
+
+            return new LoginResponseDTO(token, "Bearer", userDetails.getUsername(), rol);
         } catch (UsernameNotFoundException exception) {
             throw new BadCredentialsException("Credenciales inválidas");
         }

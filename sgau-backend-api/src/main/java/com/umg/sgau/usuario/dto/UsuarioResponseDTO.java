@@ -1,5 +1,6 @@
 package com.umg.sgau.usuario.dto;
 
+import com.umg.sgau.usuario.entity.RolUsuario;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +14,7 @@ public class UsuarioResponseDTO {
 	private String nombre;
 	private String apellido;
 	private Boolean activo;
+	private RolUsuario rol;
 	private LocalDateTime fechaCreacion;
 	
 	

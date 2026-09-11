@@ -20,6 +20,7 @@ public class UsuarioMapper {
 	usuario.setNombre(dto.getNombre());
 	usuario.setApellido(dto.getApellido());
 	usuario.setActivo(dto.getActivo());
+	usuario.setRol(dto.getRol());
 	return usuario;
 	}
 	public static UsuarioResponseDTO aResponseDTO(UsuarioEntity usuario) {
@@ -30,6 +31,7 @@ public class UsuarioMapper {
 	dto.setNombre(usuario.getNombre());
 	dto.setApellido(usuario.getApellido());
 	dto.setActivo(usuario.getActivo());
+	dto.setRol(usuario.getRol());
 	dto.setFechaCreacion(usuario.getFechaCreacion());
 	return dto;
 	}

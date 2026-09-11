@@ -86,10 +86,13 @@ public class UsuarioServiceimpl implements UsuarioService {
 
         usuarioActual.setUsername(usuario.getUsername());
         usuarioActual.setEmail(usuario.getEmail());
-        usuarioActual.setNombre(usuario.getNombre());
-        usuarioActual.setApellido(usuario.getApellido());
+		usuarioActual.setNombre(usuario.getNombre());
+		usuarioActual.setApellido(usuario.getApellido());
+		if (usuario.getRol() != null) {
+			usuarioActual.setRol(usuario.getRol());
+		}
 
-        return usuarioRepository.save(usuarioActual);
+		return usuarioRepository.save(usuarioActual);
     }
 
     @Override
