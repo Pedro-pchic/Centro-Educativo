@@ -38,5 +38,7 @@ public interface EstudianteRepository
             Long id
     );
 
+    boolean existsByUsuarioId(Long usuarioId);
+
 
 }

@@ -1,5 +1,7 @@
 package com.umg.sgau.estudiante.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.umg.sgau.usuario.entity.UsuarioEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,6 +38,14 @@ public class EstudianteEntity {
 
     @Column(nullable = false)
     private Boolean activo;
+
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(
+            name = "usuario_id",
+            foreignKey = @ForeignKey(name = "fk_estudiantes_usuario")
+    )
+    private UsuarioEntity usuario;
 
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
