@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,10 @@ import com.umg.sgau.colegiatura.service.ColegiaturaService;
 import com.umg.sgau.estudiante.entity.EstudianteEntity;
 import com.umg.sgau.estudiante.exception.EstudianteNoEncontradoException;
 import com.umg.sgau.estudiante.repository.EstudianteRepository;
+import com.umg.sgau.usuario.entity.RolUsuario;
+import com.umg.sgau.usuario.entity.UsuarioEntity;
+import com.umg.sgau.usuario.exception.AsociacionAcademicaException;
+import com.umg.sgau.usuario.service.IdentidadAcademicaService;
 
 
 @Service
@@ -33,17 +38,27 @@ public class ColegiaturaServiceimpl
     private final ColegiaturaRepository colegiaturaRepository;
 
     private final EstudianteRepository estudianteRepository;
+    private final IdentidadAcademicaService identidadAcademicaService;
 
 
 
+    @Autowired
     public ColegiaturaServiceimpl(
             ColegiaturaRepository colegiaturaRepository,
-            EstudianteRepository estudianteRepository) {
+            EstudianteRepository estudianteRepository,
+            IdentidadAcademicaService identidadAcademicaService) {
 
 
         this.colegiaturaRepository = colegiaturaRepository;
 
         this.estudianteRepository = estudianteRepository;
+        this.identidadAcademicaService = identidadAcademicaService;
+    }
+
+    public ColegiaturaServiceimpl(
+            ColegiaturaRepository colegiaturaRepository,
+            EstudianteRepository estudianteRepository) {
+        this(colegiaturaRepository, estudianteRepository, null);
 
     }
 
@@ -54,6 +69,8 @@ public class ColegiaturaServiceimpl
     @Override
     public ColegiaturaResponseDTO crear(
             ColegiaturaRequestDTO request) {
+
+        requerirAdmin();
 
 
         validarDatosPago(request);
@@ -140,6 +157,8 @@ public class ColegiaturaServiceimpl
                         () -> new ColegiaturaNoEncontradaException(id)
                 );
 
+        validarAcceso(entity);
+
 
 
         return ColegiaturaMapper.toDTO(entity);
@@ -157,6 +176,8 @@ public class ColegiaturaServiceimpl
     @Transactional(readOnly = true)
     public List<ColegiaturaResponseDTO> obtenerTodos() {
 
+        requerirAdmin();
+
 
 
         return ColegiaturaMapper.toDTOList(
@@ -170,6 +191,8 @@ public class ColegiaturaServiceimpl
     public ColegiaturaResponseDTO actualizar(
             Long id,
             ColegiaturaRequestDTO request) {
+
+        requerirAdmin();
 
 
 
@@ -280,6 +303,8 @@ public class ColegiaturaServiceimpl
     @Override
     public void eliminar(Long id) {
 
+        requerirAdmin();
+
 
 
         ColegiaturaEntity entity =
@@ -297,6 +322,46 @@ public class ColegiaturaServiceimpl
 
         colegiaturaRepository.save(entity);
 
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ColegiaturaResponseDTO> obtenerMisColegiaturas() {
+        if (identidadAcademicaService == null) {
+            throw new AsociacionAcademicaException(
+                    "No se configuró el resolver de identidad académica.");
+        }
+
+        EstudianteEntity estudiante = identidadAcademicaService.obtenerEstudianteAutenticado();
+        return ColegiaturaMapper.toDTOList(
+                colegiaturaRepository.findByEstudianteAndActivoTrue(estudiante));
+    }
+
+    private void requerirAdmin() {
+        if (identidadAcademicaService != null
+                && !identidadAcademicaService.esAdmin()) {
+            throw new AsociacionAcademicaException(
+                    "Solo ADMIN puede administrar colegiaturas.");
+        }
+    }
+
+    private void validarAcceso(ColegiaturaEntity entity) {
+        if (identidadAcademicaService == null) {
+            return;
+        }
+
+        UsuarioEntity usuario = identidadAcademicaService.obtenerUsuarioAutenticado();
+        if (usuario.getRol() == RolUsuario.ADMIN) {
+            return;
+        }
+        if (usuario.getRol() == RolUsuario.ESTUDIANTE
+                && entity.getEstudiante() != null
+                && identidadAcademicaService.obtenerEstudianteAutenticado()
+                        .getId().equals(entity.getEstudiante().getId())) {
+            return;
+        }
+        throw new AsociacionAcademicaException(
+                "No tiene permisos para consultar esta colegiatura.");
     }
 
 
@@ -356,4 +421,3 @@ public class ColegiaturaServiceimpl
     }
 
 }
-

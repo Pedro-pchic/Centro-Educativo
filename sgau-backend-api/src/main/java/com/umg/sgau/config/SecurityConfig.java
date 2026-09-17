@@ -116,21 +116,80 @@ public class SecurityConfig {
                 .hasRole("ADMIN")
 
                 .requestMatchers(
-                    HttpMethod.GET,
-                    "/api/estudiantes/**",
-                    "/api/docentes/**",
-                    "/api/carreras/**",
-                    "/api/cursos/**",
-                    "/api/inscripciones/**"
+                    "/api/estudiantes/me",
+                    "/api/estudiantes/me/**"
                 )
-                .hasAnyRole("ADMIN", "DOCENTE", "ESTUDIANTE")
+                .hasRole("ESTUDIANTE")
+
+                .requestMatchers(
+                    "/api/docentes/me",
+                    "/api/docentes/me/**"
+                )
+                .hasRole("DOCENTE")
 
                 .requestMatchers(
                     HttpMethod.GET,
-                    "/api/colegiaturas/**",
-                    "/api/notas/**"
+                    "/api/estudiantes/*"
                 )
+                .hasAnyRole("ADMIN", "ESTUDIANTE")
+
+                .requestMatchers(
+                    HttpMethod.GET,
+                    "/api/docentes/*"
+                )
+                .hasAnyRole("ADMIN", "DOCENTE")
+
+                .requestMatchers(
+                    HttpMethod.GET,
+                    "/api/cursos/*"
+                )
+                .hasAnyRole("ADMIN", "DOCENTE")
+
+                .requestMatchers(
+                    HttpMethod.GET,
+                    "/api/estudiantes/**",
+                    "/api/docentes/**",
+                    "/api/cursos/**"
+                )
+                .hasRole("ADMIN")
+
+                .requestMatchers(HttpMethod.GET, "/api/carreras/**")
                 .hasAnyRole("ADMIN", "DOCENTE", "ESTUDIANTE")
+
+                .requestMatchers(HttpMethod.GET, "/api/inscripciones")
+                .hasRole("ADMIN")
+
+                .requestMatchers(HttpMethod.GET, "/api/inscripciones/paginadas")
+                .hasRole("ADMIN")
+
+                .requestMatchers(HttpMethod.GET, "/api/inscripciones/estudiante/**")
+                .hasRole("ADMIN")
+
+                .requestMatchers(HttpMethod.GET, "/api/inscripciones/curso/**")
+                .hasAnyRole("ADMIN", "DOCENTE")
+
+                .requestMatchers(HttpMethod.GET, "/api/inscripciones/*")
+                .hasAnyRole("ADMIN", "DOCENTE", "ESTUDIANTE")
+
+                .requestMatchers(HttpMethod.GET, "/api/notas")
+                .hasRole("ADMIN")
+
+                .requestMatchers(
+                    HttpMethod.GET,
+                    "/api/notas/curso/**",
+                    "/api/notas/inscripcion/**",
+                    "/api/notas/estudiante/**"
+                )
+                .hasAnyRole("ADMIN", "DOCENTE")
+
+                .requestMatchers(HttpMethod.GET, "/api/notas/*")
+                .hasAnyRole("ADMIN", "DOCENTE", "ESTUDIANTE")
+
+                .requestMatchers(HttpMethod.GET, "/api/colegiaturas")
+                .hasRole("ADMIN")
+
+                .requestMatchers(HttpMethod.GET, "/api/colegiaturas/*")
+                .hasAnyRole("ADMIN", "ESTUDIANTE")
 
                 .requestMatchers(
                     HttpMethod.POST,
@@ -153,7 +212,6 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/api/estudiantes/**",
                     "/api/docentes/**",
-                    "/api/carreras/**",
                     "/api/cursos/**",
                     "/api/inscripciones/**",
                     "/api/colegiaturas/**",

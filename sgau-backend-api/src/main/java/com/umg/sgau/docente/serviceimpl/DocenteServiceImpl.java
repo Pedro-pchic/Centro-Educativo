@@ -4,9 +4,10 @@ import com.umg.sgau.docente.entity.DocenteEntity;
 import com.umg.sgau.docente.exception.DocenteNoEncontradoException;
 import com.umg.sgau.docente.repository.DocenteRepository;
 import com.umg.sgau.docente.service.DocenteService;
+import com.umg.sgau.usuario.exception.AsociacionAcademicaException;
+import com.umg.sgau.usuario.service.IdentidadAcademicaService;
 
-import lombok.RequiredArgsConstructor;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,13 +17,26 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class DocenteServiceImpl implements DocenteService {
 	
 	private final DocenteRepository docenteRepository;
+	private final IdentidadAcademicaService identidadAcademicaService;
+
+	@Autowired
+	public DocenteServiceImpl(
+			DocenteRepository docenteRepository,
+			IdentidadAcademicaService identidadAcademicaService) {
+		this.docenteRepository = docenteRepository;
+		this.identidadAcademicaService = identidadAcademicaService;
+	}
+
+	public DocenteServiceImpl(DocenteRepository docenteRepository) {
+		this(docenteRepository, null);
+	}
 	
 	@Override
     public DocenteEntity registrarDocente(DocenteEntity nuevoDocente) {
+		requerirAdmin();
         boolean yaExisteDpiOEmail = docenteRepository.findAll().stream()
                 .anyMatch(d -> d.getDpi().equals(nuevoDocente.getDpi()) || 
                                d.getEmailInstitucional().equalsIgnoreCase(nuevoDocente.getEmailInstitucional()));
@@ -35,6 +49,7 @@ public class DocenteServiceImpl implements DocenteService {
 
     @Override
     public List<DocenteEntity> obtenerDocentesActivos() {
+		requerirAdmin();
         return docenteRepository.findAll().stream()
         		.filter(DocenteEntity::getActivo)
         		.collect(Collectors.toList());
@@ -42,6 +57,7 @@ public class DocenteServiceImpl implements DocenteService {
 
     @Override
     public DocenteEntity buscarPorDpi(String dpi) {
+		requerirAdmin();
         return docenteRepository.findAll().stream()
         		.filter(docente ->docente.getDpi().equals(dpi))
         		.filter(DocenteEntity::getActivo)
@@ -51,12 +67,14 @@ public class DocenteServiceImpl implements DocenteService {
     
     @Override
     public DocenteEntity buscarPorId(Long id) {
+		validarAccesoDocente(id);
         return docenteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("No se encontró ningún docente con el ID: " + id));
     }
     
     @Override
     public List<DocenteEntity> obtenerTodos(){
+		requerirAdmin();
     	return docenteRepository.findAll().stream()
     			.filter(DocenteEntity::getActivo)
     			.collect(Collectors.toList());
@@ -64,6 +82,7 @@ public class DocenteServiceImpl implements DocenteService {
 
     @Override
     public List<DocenteEntity> buscarPorEspecialidad(String especialidad) {
+		requerirAdmin();
         return docenteRepository.findAll().stream()
         		.filter(docente -> docente.getEspecialidad() !=null &&
         				docente.getEspecialidad().toLowerCase().contains(especialidad.toLowerCase()))
@@ -73,6 +92,7 @@ public class DocenteServiceImpl implements DocenteService {
     
     @Override
     public DocenteEntity actualizar(Long id, DocenteEntity docente) {
+		requerirAdmin();
     	return docenteRepository.findById(id)
     			.map(docenteActual-> {
     		    	docenteActual.setNombre(docente.getNombre());
@@ -92,6 +112,7 @@ public class DocenteServiceImpl implements DocenteService {
     
     @Override
     public void eliminar(Long id) {
+		requerirAdmin();
         docenteRepository.findById(id)
                 .map(docente -> {
                     docente.setActivo(false);
@@ -102,6 +123,7 @@ public class DocenteServiceImpl implements DocenteService {
     
     @Override
     public void habilitar(Long id) {
+		requerirAdmin();
         docenteRepository.findById(id)
                 .map(docente -> {
                     docente.setActivo(true);
@@ -112,14 +134,51 @@ public class DocenteServiceImpl implements DocenteService {
 
     @Override
     public Page<DocenteEntity> obtenerTodosPaginados(Pageable pageable) {
+		requerirAdmin();
         return docenteRepository.findByActivoTrue(pageable);
     		
     }
 
     @Override
     public Page<DocenteEntity> buscarPorFiltros(String filtro, Pageable pageable) {
+		requerirAdmin();
     	return docenteRepository.findByNombreContainingIgnoreCaseOrApellidoContainingIgnoreCaseOrEmailInstitucionalContainingIgnoreCaseOrEspecialidadContainingIgnoreCaseOrDpiContaining(
     		    filtro, filtro, filtro, filtro, filtro, pageable
-    		);
+			);
     }
+
+	@Override
+	public DocenteEntity obtenerAutenticado() {
+		if (identidadAcademicaService == null) {
+			throw new AsociacionAcademicaException(
+					"No se configuró el resolver de identidad académica.");
+		}
+		return identidadAcademicaService.obtenerDocenteAutenticado();
+	}
+
+	private void requerirAdmin() {
+		if (identidadAcademicaService != null
+				&& !identidadAcademicaService.esAdmin()) {
+			throw new AsociacionAcademicaException(
+					"Solo ADMIN puede administrar docentes.");
+		}
+	}
+
+	private void validarAccesoDocente(Long id) {
+		if (identidadAcademicaService == null) {
+			return;
+		}
+
+		if (identidadAcademicaService.esAdmin()) {
+			return;
+		}
+
+		if (identidadAcademicaService.obtenerDocenteAutenticado()
+				.getId().equals(id)) {
+			return;
+		}
+
+		throw new AsociacionAcademicaException(
+				"No tiene permisos para consultar este docente.");
+	}
 }

@@ -38,6 +38,8 @@ public interface EstudianteRepository
             Long id
     );
 
+    Optional<EstudianteEntity> findByUsuarioIdAndActivoTrue(Long usuarioId);
+
     boolean existsByUsuarioId(Long usuarioId);
 
 

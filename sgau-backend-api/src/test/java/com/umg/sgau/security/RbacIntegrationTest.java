@@ -25,6 +25,8 @@ import com.umg.sgau.carrera.entity.CarreraEntity;
 import com.umg.sgau.carrera.repository.CarreraRepository;
 import com.umg.sgau.curso.entity.CursoEntity;
 import com.umg.sgau.curso.repository.CursoRepository;
+import com.umg.sgau.docente.entity.DocenteEntity;
+import com.umg.sgau.docente.repository.DocenteRepository;
 import com.umg.sgau.estudiante.entity.EstudianteEntity;
 import com.umg.sgau.estudiante.repository.EstudianteRepository;
 import com.umg.sgau.inscripcion.entity.InscripcionEntity;
@@ -65,6 +67,9 @@ class RbacIntegrationTest {
     private EstudianteRepository estudianteRepository;
 
     @Autowired
+    private DocenteRepository docenteRepository;
+
+    @Autowired
     private CarreraRepository carreraRepository;
 
     @Autowired
@@ -83,13 +88,24 @@ class RbacIntegrationTest {
         notaRepository.deleteAll();
         inscripcionRepository.deleteAll();
         cursoRepository.deleteAll();
+        docenteRepository.deleteAll();
         carreraRepository.deleteAll();
         estudianteRepository.deleteAll();
         usuarioRepository.deleteAll();
 
         usuarioRepository.save(usuario("admin", RolUsuario.ADMIN));
-        usuarioRepository.save(usuario("docente", RolUsuario.DOCENTE));
+        UsuarioEntity usuarioDocente = usuarioRepository.save(usuario("docente", RolUsuario.DOCENTE));
         usuarioRepository.save(usuario("estudiante", RolUsuario.ESTUDIANTE));
+
+        DocenteEntity docente = new DocenteEntity();
+        docente.setNombre("Carlos");
+        docente.setApellido("Pérez");
+        docente.setEmailInstitucional("docente@prueba.test");
+        docente.setEmailPersonal("docente.personal@prueba.test");
+        docente.setDpi("1234567890101");
+        docente.setFechaContratacion(LocalDate.of(2020, 1, 1));
+        docente.setUsuario(usuarioDocente);
+        docente = docenteRepository.save(docente);
 
         EstudianteEntity estudiante = new EstudianteEntity();
         estudiante.setCodigoEstudiante("EST-1");
@@ -109,6 +125,7 @@ class RbacIntegrationTest {
                 .nombre("Programación")
                 .creditos(4)
                 .carrera(carrera)
+                .docente(docente)
                 .build());
 
         inscripcion = new InscripcionEntity();
@@ -166,7 +183,7 @@ class RbacIntegrationTest {
     void docentePuedeConsultarEstudiantes() throws Exception {
         mockMvc.perform(get("/api/estudiantes")
                         .header("Authorization", bearerToken("docente", RolUsuario.DOCENTE)))
-                .andExpect(status().isOk());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -180,7 +197,7 @@ class RbacIntegrationTest {
     void estudiantePuedeConsultarNotasPeroNoCrearEstudiantes() throws Exception {
         mockMvc.perform(get("/api/notas")
                         .header("Authorization", bearerToken("estudiante", RolUsuario.ESTUDIANTE)))
-                .andExpect(status().isOk());
+                .andExpect(status().isForbidden());
 
         mockMvc.perform(post("/api/estudiantes")
                         .header("Authorization", bearerToken("estudiante", RolUsuario.ESTUDIANTE))
@@ -193,7 +210,7 @@ class RbacIntegrationTest {
     void docentePuedeConsultarNotas() throws Exception {
         mockMvc.perform(get("/api/notas")
                         .header("Authorization", bearerToken("docente", RolUsuario.DOCENTE)))
-                .andExpect(status().isOk());
+                .andExpect(status().isForbidden());
     }
 
     @Test

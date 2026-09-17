@@ -19,10 +19,14 @@ public interface NotaService {
     List<NotaResponseDTO> obtenerTodas();
     NotaResponseDTO obtenerPorId(Long id);
     List<NotaResponseDTO> obtenerPorEstudiante(Long estudianteId);
+
+    List<NotaResponseDTO> obtenerMisNotas();
     List<NotaResponseDTO> obtenerPorCurso(Long cursoId);
     List<NotaResponseDTO> obtenerPorInscripcion(Long inscripcionId);
     NotaResponseDTO obtenerPorEstudianteYCurso(Long estudianteId, Long cursoId);
 
     // Calcular automáticamente el promedio general
     Double calcularPromedioEstudiante(Long estudianteId);
+
+    Double calcularMiPromedio();
 }

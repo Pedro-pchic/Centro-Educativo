@@ -20,6 +20,8 @@ public interface ColegiaturaService {
 
     List<ColegiaturaResponseDTO> obtenerTodos();
 
+    List<ColegiaturaResponseDTO> obtenerMisColegiaturas();
+
 
     ColegiaturaResponseDTO actualizar(
             Long id,

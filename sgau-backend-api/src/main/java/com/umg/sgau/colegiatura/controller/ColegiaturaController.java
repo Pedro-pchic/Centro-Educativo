@@ -71,10 +71,6 @@ public class ColegiaturaController {
 
     }
 
-
-
-
-
     @PutMapping("/{id}")
     public ResponseEntity<ColegiaturaResponseDTO> actualizar(
             @PathVariable Long id,
@@ -105,6 +101,4 @@ public class ColegiaturaController {
 
 
 }
-
-
 

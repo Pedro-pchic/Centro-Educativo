@@ -28,6 +28,8 @@ public interface DocenteRepository extends JpaRepository<DocenteEntity, Long> {
 	
 	Page<DocenteEntity> findByActivoTrue(Pageable pageable);
 
+	Optional<DocenteEntity> findByUsuarioIdAndActivoTrue(Long usuarioId);
+
 	boolean existsByUsuarioId(Long usuarioId);
 
 }

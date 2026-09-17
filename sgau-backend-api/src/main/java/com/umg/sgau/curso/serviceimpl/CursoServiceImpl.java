@@ -21,7 +21,10 @@ import com.umg.sgau.curso.service.CursoService;
 import com.umg.sgau.docente.entity.DocenteEntity;
 import com.umg.sgau.docente.exception.DocenteNoEncontradoException;
 import com.umg.sgau.docente.repository.DocenteRepository;
+import com.umg.sgau.usuario.exception.AsociacionAcademicaException;
+import com.umg.sgau.usuario.service.IdentidadAcademicaService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 @Service
 @Transactional
 public class CursoServiceImpl implements CursoService {
@@ -29,19 +32,32 @@ public class CursoServiceImpl implements CursoService {
     private final CursoRepository cursoRepository;
     private final CarreraRepository carreraRepository;
     private final DocenteRepository docenteRepository;
+    private final IdentidadAcademicaService identidadAcademicaService;
+
+    @Autowired
+    public CursoServiceImpl(
+            CursoRepository cursoRepository,
+            CarreraRepository carreraRepository,
+            DocenteRepository docenteRepository,
+            IdentidadAcademicaService identidadAcademicaService) {
+
+        this.cursoRepository = cursoRepository;
+        this.carreraRepository = carreraRepository;
+        this.docenteRepository = docenteRepository;
+        this.identidadAcademicaService = identidadAcademicaService;
+    }
 
     public CursoServiceImpl(
             CursoRepository cursoRepository,
             CarreraRepository carreraRepository,
             DocenteRepository docenteRepository) {
-
-        this.cursoRepository = cursoRepository;
-        this.carreraRepository = carreraRepository;
-        this.docenteRepository = docenteRepository;
+        this(cursoRepository, carreraRepository, docenteRepository, null);
     }
 
     @Override
     public CursoResponseDTO crear(CursoRequestDTO request) {
+
+        requerirAdmin();
 
         String codigo = normalizarCodigo(request.getCodigo());
 
@@ -74,7 +90,10 @@ public class CursoServiceImpl implements CursoService {
     public CursoResponseDTO obtenerPorId(Long id) {
 
         return cursoRepository.findByIdAndActivoTrue(id)
-                .map(CursoMapper::aResponseDTO)
+                .map(curso -> {
+                    validarAccesoCurso(curso);
+                    return CursoMapper.aResponseDTO(curso);
+                })
                 .orElseThrow(
                     () -> new CursoNoEncontradoException(id)
                 );
@@ -83,6 +102,8 @@ public class CursoServiceImpl implements CursoService {
     @Override
     @Transactional(readOnly = true)
     public List<CursoResponseDTO> obtenerTodos() {
+
+        requerirAdmin();
 
         return cursoRepository.findAll()
                 .stream()
@@ -98,6 +119,8 @@ public class CursoServiceImpl implements CursoService {
     @Transactional(readOnly = true)
     public List<CursoResponseDTO> obtenerInactivos() {
 
+        requerirAdmin();
+
         return cursoRepository.findAllByActivoFalse()
                 .stream()
                 .filter(
@@ -112,6 +135,8 @@ public class CursoServiceImpl implements CursoService {
     @Transactional(readOnly = true)
     public List<CursoResponseDTO> obtenerPorCarrera(
             Long carreraId) {
+
+        requerirAdmin();
 
         obtenerCarreraActiva(carreraId);
 
@@ -130,6 +155,8 @@ public class CursoServiceImpl implements CursoService {
     public CursoResponseDTO actualizar(
             Long id,
             CursoRequestDTO request) {
+
+        requerirAdmin();
 
         CursoEntity curso = cursoRepository
                 .findByIdAndActivoTrue(id)
@@ -172,6 +199,8 @@ public class CursoServiceImpl implements CursoService {
     @Override
     public void eliminar(Long id) {
 
+        requerirAdmin();
+
         CursoEntity curso = cursoRepository
                 .findByIdAndActivoTrue(id)
                 .orElseThrow(
@@ -185,6 +214,8 @@ public class CursoServiceImpl implements CursoService {
 
     @Override
     public CursoResponseDTO restaurar(Long id) {
+
+        requerirAdmin();
 
         CursoEntity curso = cursoRepository.findById(id)
                 .orElseThrow(
@@ -215,6 +246,50 @@ public class CursoServiceImpl implements CursoService {
         return CursoMapper.aResponseDTO(
                 cursoRepository.save(curso)
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CursoResponseDTO> obtenerPorDocenteAutenticado() {
+        if (identidadAcademicaService == null) {
+            throw new AsociacionAcademicaException(
+                    "No se configuró el resolver de identidad académica.");
+        }
+
+        Long docenteId = identidadAcademicaService.obtenerDocenteAutenticado().getId();
+        return cursoRepository.findAllByDocenteIdAndActivoTrue(docenteId)
+                .stream()
+                .map(CursoMapper::aResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    private void requerirAdmin() {
+        if (identidadAcademicaService != null
+                && !identidadAcademicaService.esAdmin()) {
+            throw new AsociacionAcademicaException(
+                    "Solo ADMIN puede administrar cursos.");
+        }
+    }
+
+    private void validarAccesoCurso(CursoEntity curso) {
+        if (identidadAcademicaService == null) {
+            return;
+        }
+        if (identidadAcademicaService.esAdmin()) {
+            return;
+        }
+
+        Long docenteId = curso.getDocente() == null
+                ? null
+                : curso.getDocente().getId();
+        if (docenteId != null
+                && identidadAcademicaService.obtenerDocenteAutenticado()
+                        .getId().equals(docenteId)) {
+            return;
+        }
+
+        throw new AsociacionAcademicaException(
+                "No tiene permisos para consultar este curso.");
     }
 
     private CarreraEntity obtenerCarreraActiva(

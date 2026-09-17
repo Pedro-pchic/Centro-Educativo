@@ -6,6 +6,8 @@ import com.umg.sgau.docente.dto.DocenteResponseDTO;
 import com.umg.sgau.docente.entity.DocenteEntity; 
 import com.umg.sgau.docente.mapper.DocenteMapper; 
 import com.umg.sgau.docente.service.DocenteService;
+import com.umg.sgau.curso.dto.CursoResponseDTO;
+import com.umg.sgau.curso.service.CursoService;
 
 import java.util.List;
 
@@ -21,10 +23,26 @@ import org.springframework.web.bind.annotation.*;
 public class DocenteController { 
 
     private final DocenteService docenteService; 
+    private final CursoService cursoService;
  
-    public DocenteController(DocenteService docenteService) { 
+    public DocenteController(
+            DocenteService docenteService,
+            CursoService cursoService) {
         this.docenteService = docenteService; 
+        this.cursoService = cursoService;
     } 
+
+    @GetMapping("/me")
+    public ResponseEntity<DocenteResponseDTO> obtenerAutenticado() {
+        return ResponseEntity.ok(
+                DocenteMapper.aResponseDTO(docenteService.obtenerAutenticado())
+        );
+    }
+
+    @GetMapping("/me/cursos")
+    public ResponseEntity<List<CursoResponseDTO>> obtenerCursosAutenticado() {
+        return ResponseEntity.ok(cursoService.obtenerPorDocenteAutenticado());
+    }
  
     // Registrar catedrático
     @PostMapping 
