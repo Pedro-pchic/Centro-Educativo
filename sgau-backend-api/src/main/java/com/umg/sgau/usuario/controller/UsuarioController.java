@@ -9,6 +9,7 @@ import com.umg.sgau.usuario.service.UsuarioService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 @RestController
@@ -21,7 +22,7 @@ public class UsuarioController {
 		}
 	
 	@PostMapping
-	public ResponseEntity<?> crear(@RequestBody UsuarioRequestDTO request) {
+	public ResponseEntity<?> crear(@Valid @RequestBody UsuarioRequestDTO request) {
 	UsuarioEntity usuarioCreado = usuarioService.crear(UsuarioMapper.aEntidad(request));
 	UsuarioResponseDTO response = UsuarioMapper.aResponseDTO(usuarioCreado);
 	return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -50,7 +51,7 @@ public class UsuarioController {
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody UsuarioRequestDTO request) {
+	public ResponseEntity<?> actualizar(@PathVariable Long id, @Valid @RequestBody UsuarioRequestDTO request) {
 			try {
 				UsuarioEntity usuarioActualizado = usuarioService.actualizar(id, UsuarioMapper.aEntidad(request));
 				return ResponseEntity.ok(UsuarioMapper.aResponseDTO(usuarioActualizado));
@@ -75,4 +76,3 @@ public class UsuarioController {
 	
 	
 	
-

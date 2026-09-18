@@ -487,7 +487,7 @@ class AdversarialAuthorizationIntegrationTest {
                   "inscripcionId": %d,
                   "cicloAcademico": "2026-1",
                   "zona": 50.00,
-                  "examenFinal": 40.00,
+                  "examenFinal": 30.00,
                   "estado": "APROBADO",
                   "fechaRegistro": "2026-02-10"
                 }

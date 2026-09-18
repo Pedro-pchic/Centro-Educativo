@@ -10,6 +10,7 @@ import com.umg.sgau.estudiante.service.EstudianteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class EstudianteController {
 
     @PostMapping
     public ResponseEntity<?> crear(
-            @RequestBody EstudianteRequestDTO request) {
+            @Valid @RequestBody EstudianteRequestDTO request) {
 
         EstudianteEntity estudianteCreado =
                 estudianteService.crear(
@@ -79,7 +80,7 @@ public class EstudianteController {
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizar(
             @PathVariable Long id,
-            @RequestBody EstudianteRequestDTO request) {
+            @Valid @RequestBody EstudianteRequestDTO request) {
 
         try {
 

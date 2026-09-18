@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.math.BigDecimal;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,6 +54,7 @@ public class NotaServiceImpl implements NotaService {
 
     @Override
     public NotaResponseDTO registrarNota(NotaRequestDTO nuevaNota) {
+        validarValoresNota(nuevaNota);
         InscripcionEntity inscripcion = obtenerInscripcionActiva(
                 nuevaNota.getInscripcionId());
         validarAccesoInscripcion(inscripcion);
@@ -69,6 +71,7 @@ public class NotaServiceImpl implements NotaService {
 
     @Override
     public NotaResponseDTO actualizarNota(Long id, NotaRequestDTO notaActualizada) {
+        validarValoresNota(notaActualizada);
         NotaEntity notaExistente = notaRepository.findByIdAndActivoTrue(id)
                 .orElseThrow(() -> new NotaNoEncontradaException(id));
         validarAccesoNota(notaExistente);
@@ -82,7 +85,7 @@ public class NotaServiceImpl implements NotaService {
             notaExistente.setFechaRegistro(notaActualizada.getFechaRegistro());
         }
 
-        return NotaMapper.aResponseDTO(notaRepository.save(notaExistente));
+        return NotaMapper.aResponseDTO(notaRepository.saveAndFlush(notaExistente));
     }
 
     @Override
@@ -283,6 +286,21 @@ public class NotaServiceImpl implements NotaService {
         if (identidadAcademicaService != null
                 && !identidadAcademicaService.esAdmin()) {
             throw accesoDenegado("Solo ADMIN puede administrar notas.");
+        }
+    }
+
+    private void validarValoresNota(NotaRequestDTO nota) {
+        if (nota.getZona() != null
+                && (nota.getZona().compareTo(BigDecimal.ZERO) < 0
+                        || nota.getZona().compareTo(new BigDecimal("70.00")) > 0)) {
+            throw new IllegalArgumentException(
+                    "La zona debe estar entre 0 y 70.");
+        }
+        if (nota.getExamenFinal() != null
+                && (nota.getExamenFinal().compareTo(BigDecimal.ZERO) < 0
+                        || nota.getExamenFinal().compareTo(new BigDecimal("30.00")) > 0)) {
+            throw new IllegalArgumentException(
+                    "El examen final debe estar entre 0 y 30.");
         }
     }
 

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class NotaController {
     }
 
     @PostMapping
-    public ResponseEntity<?> registrarNota(@RequestBody NotaRequestDTO requestDTO) {
+    public ResponseEntity<?> registrarNota(@Valid @RequestBody NotaRequestDTO requestDTO) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(notaService.registrarNota(requestDTO));
@@ -37,10 +38,14 @@ public class NotaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<NotaResponseDTO> actualizarNota(
+    public ResponseEntity<?> actualizarNota(
             @PathVariable Long id,
-            @RequestBody NotaRequestDTO requestDTO) {
-        return ResponseEntity.ok(notaService.actualizarNota(id, requestDTO));
+            @Valid @RequestBody NotaRequestDTO requestDTO) {
+        try {
+            return ResponseEntity.ok(notaService.actualizarNota(id, requestDTO));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
     @GetMapping

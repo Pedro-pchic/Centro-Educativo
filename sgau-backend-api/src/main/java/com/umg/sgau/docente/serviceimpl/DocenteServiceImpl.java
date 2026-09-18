@@ -69,6 +69,7 @@ public class DocenteServiceImpl implements DocenteService {
     public DocenteEntity buscarPorId(Long id) {
 		validarAccesoDocente(id);
         return docenteRepository.findById(id)
+                .filter(docente -> Boolean.TRUE.equals(docente.getActivo()))
                 .orElseThrow(() -> new RuntimeException("No se encontró ningún docente con el ID: " + id));
     }
     
@@ -93,20 +94,20 @@ public class DocenteServiceImpl implements DocenteService {
     @Override
     public DocenteEntity actualizar(Long id, DocenteEntity docente) {
 		requerirAdmin();
-    	return docenteRepository.findById(id)
-    			.map(docenteActual-> {
-    		    	docenteActual.setNombre(docente.getNombre());
-    		    	docenteActual.setApellido(docente.getApellido());
-    		    	docenteActual.setEmailInstitucional(docente.getEmailInstitucional());
-    		    	docenteActual.setEmailPersonal(docente.getEmailPersonal());
-    		    	docenteActual.setDpi(docente.getDpi());
-    		    	docenteActual.setTelefono(docente.getTelefono());
-    		    	docenteActual.setEspecialidad(docente.getEspecialidad());
-    		    	docenteActual.setFechaContratacion(docente.getFechaContratacion());
-    		    
-    		    	return docenteRepository.save(docenteActual);   		
-    			})
-    			.orElseThrow(() -> new DocenteNoEncontradoException(id));
+		DocenteEntity docenteActual = docenteRepository.findById(id)
+				.filter(docenteEncontrado -> Boolean.TRUE.equals(docenteEncontrado.getActivo()))
+				.orElseThrow(() -> new DocenteNoEncontradoException(id));
+
+		docenteActual.setNombre(docente.getNombre());
+		docenteActual.setApellido(docente.getApellido());
+		docenteActual.setEmailInstitucional(docente.getEmailInstitucional());
+		docenteActual.setEmailPersonal(docente.getEmailPersonal());
+		docenteActual.setDpi(docente.getDpi());
+		docenteActual.setTelefono(docente.getTelefono());
+		docenteActual.setEspecialidad(docente.getEspecialidad());
+		docenteActual.setFechaContratacion(docente.getFechaContratacion());
+
+		return docenteRepository.save(docenteActual);
     	
 	}
     

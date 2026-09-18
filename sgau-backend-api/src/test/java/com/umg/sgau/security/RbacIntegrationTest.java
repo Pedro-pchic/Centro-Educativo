@@ -223,7 +223,7 @@ class RbacIntegrationTest {
                                   "inscripcionId": %d,
                                   "cicloAcademico": "2026-2",
                                   "zona": 50,
-                                  "examenFinal": 40,
+                                  "examenFinal": 30,
                                   "estado": "APROBADO"
                                 }
                                 """.formatted(inscripcion.getId())))
@@ -238,7 +238,7 @@ class RbacIntegrationTest {
                                   "inscripcionId": %d,
                                   "cicloAcademico": "2026-2",
                                   "zona": 55,
-                                  "examenFinal": 40,
+                                  "examenFinal": 30,
                                   "estado": "APROBADO"
                                 }
                                 """.formatted(inscripcion.getId())))

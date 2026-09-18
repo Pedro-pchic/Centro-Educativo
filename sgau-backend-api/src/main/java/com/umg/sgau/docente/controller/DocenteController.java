@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus; 
 import org.springframework.http.ResponseEntity; 
 import org.springframework.web.bind.annotation.*; 
+import jakarta.validation.Valid;
 
 @RestController 
 @RequestMapping("/api/docentes") 
@@ -46,7 +47,7 @@ public class DocenteController {
  
     // Registrar catedrático
     @PostMapping 
-    public ResponseEntity<?> crear(@RequestBody DocenteRequestDTO request) { 
+    public ResponseEntity<?> crear(@Valid @RequestBody DocenteRequestDTO request) {
         try {
             DocenteEntity docenteCreado = docenteService.registrarDocente(DocenteMapper.aEntidad(request)); 
             DocenteResponseDTO response = DocenteMapper.aResponseDTO(docenteCreado); 
@@ -123,7 +124,7 @@ public class DocenteController {
  
     // Actualizar información de catedráticos
     @PutMapping("/{id}") 
-    public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody DocenteRequestDTO request) { 
+    public ResponseEntity<?> actualizar(@PathVariable Long id, @Valid @RequestBody DocenteRequestDTO request) {
         try { 
             DocenteEntity docenteActualizado = docenteService.actualizar(id, DocenteMapper.aEntidad(request)); 
             return ResponseEntity.ok(DocenteMapper.aResponseDTO(docenteActualizado)); 
