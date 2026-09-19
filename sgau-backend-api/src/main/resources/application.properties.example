@@ -1,24 +1,13 @@
-spring.application.name=educativo-backend
+# La aplicación usa application-dev.properties o application-prod.properties.
+# Activar explícitamente con SPRING_PROFILES_ACTIVE=dev|prod.
 
-# Conexión a PostgreSQL mediante variables de entorno
-spring.datasource.url=${DB_URL}
-spring.datasource.username=${DB_USERNAME}
-spring.datasource.password=${DB_PASSWORD}
-spring.datasource.driver-class-name=org.postgresql.Driver
+# Variables requeridas por ambos perfiles
+DB_URL=jdbc:postgresql://localhost:5433/centro_educativo
+DB_USERNAME=admin1
+DB_PASSWORD=colocar_fuera_del_repositorio
+JWT_SECRET=colocar_un_secreto_de_al_menos_32_caracteres_fuera_del_repositorio
 
-# JPA / Hibernate
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
-
-# Swagger
-springdoc.swagger-ui.path=/swagger-ui.html
-springdoc.api-docs.path=/api-docs
-
-# JWT (JWT_SECRET debe tener al menos 32 caracteres)
-jwt.secret=${JWT_SECRET}
-jwt.expiration=${JWT_EXPIRATION:86400000}
-
-# Servidor
-server.port=${PORT:9001}
+# Opcionales
+JWT_EXPIRATION=86400000
+PORT=8080
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:4200

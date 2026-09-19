@@ -10,6 +10,8 @@ public interface EstudianteService {
 
     EstudianteEntity obtenerPorId(Long id);
 
+    EstudianteEntity obtenerAutenticado();
+
     List<EstudianteEntity> obtenerTodos();
 
     EstudianteEntity actualizar(Long id, EstudianteEntity estudiante);

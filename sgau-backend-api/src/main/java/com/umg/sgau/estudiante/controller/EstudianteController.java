@@ -10,6 +10,7 @@ import com.umg.sgau.estudiante.service.EstudianteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -24,8 +25,8 @@ public class EstudianteController {
     }
 
     @PostMapping
-    public ResponseEntity<?> crear(
-            @RequestBody EstudianteRequestDTO request) {
+    public ResponseEntity<EstudianteResponseDTO> crear(
+            @Valid @RequestBody EstudianteRequestDTO request) {
 
         EstudianteEntity estudianteCreado =
                 estudianteService.crear(
@@ -35,31 +36,15 @@ public class EstudianteController {
         EstudianteResponseDTO response =
                 EstudianteMapper.aResponseDTO(estudianteCreado);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> obtenerPorId(
+    public ResponseEntity<EstudianteResponseDTO> obtenerPorId(
             @PathVariable Long id) {
-
-        try {
-
-            EstudianteEntity estudiante =
-                    estudianteService.obtenerPorId(id);
-
-            return ResponseEntity.ok(
-                    EstudianteMapper.aResponseDTO(estudiante)
-            );
-
-        } catch (EstudianteNoEncontradoException ex) {
-
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(ex.getMessage());
-        }
+        EstudianteEntity estudiante = estudianteService.obtenerPorId(id);
+        return ResponseEntity.ok(EstudianteMapper.aResponseDTO(estudiante));
     }
 
 
@@ -77,50 +62,19 @@ public class EstudianteController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizar(
+    public ResponseEntity<EstudianteResponseDTO> actualizar(
             @PathVariable Long id,
-            @RequestBody EstudianteRequestDTO request) {
-
-        try {
-
-            EstudianteEntity estudianteActualizado =
-                    estudianteService.actualizar(
-                            id,
-                            EstudianteMapper.aEntidad(request)
-                    );
-
-            return ResponseEntity.ok(
-                    EstudianteMapper.aResponseDTO(
-                            estudianteActualizado
-                    )
-            );
-
-        } catch (EstudianteNoEncontradoException ex) {
-
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(ex.getMessage());
-        }
+            @Valid @RequestBody EstudianteRequestDTO request) {
+        EstudianteEntity estudianteActualizado = estudianteService.actualizar(
+                id, EstudianteMapper.aEntidad(request));
+        return ResponseEntity.ok(EstudianteMapper.aResponseDTO(estudianteActualizado));
     }
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminar(
+    public ResponseEntity<Void> eliminar(
             @PathVariable Long id) {
-
-        try {
-
-            estudianteService.eliminar(id);
-
-            return ResponseEntity
-                    .noContent()
-                    .build();
-
-        } catch (EstudianteNoEncontradoException ex) {
-
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(ex.getMessage());
-        }
+        estudianteService.eliminar(id);
+        return ResponseEntity.noContent().build();
     }
 }

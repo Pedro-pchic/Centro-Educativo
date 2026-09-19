@@ -2,11 +2,18 @@ package com.umg.sgau.nota.controller;
 
 import com.umg.sgau.nota.dto.NotaRequestDTO;
 import com.umg.sgau.nota.dto.NotaResponseDTO;
-import com.umg.sgau.nota.exception.NotaNoEncontradaException;
 import com.umg.sgau.nota.service.NotaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -15,123 +22,69 @@ import java.util.List;
 public class NotaController {
 
     private final NotaService notaService;
-    
-    public NotaController(NotaService notaService) { 
-        this.notaService = notaService; 
+
+    public NotaController(NotaService notaService) {
+        this.notaService = notaService;
     }
 
-    // Registrar calificaciones
     @PostMapping
-    public ResponseEntity<?> registrarNota(@RequestBody NotaRequestDTO requestDTO) {
-        try {
-        	
-            NotaResponseDTO notaGuardada = notaService.registrarNota(requestDTO);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(notaGuardada);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al registrar la nota: " + ex.getMessage());
-        }
+    public ResponseEntity<?> registrarNota(@Valid @RequestBody NotaRequestDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(notaService.registrarNota(requestDTO));
     }
 
-    // Actualizar calificaciones
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizarNota(@PathVariable Long id, @RequestBody NotaRequestDTO requestDTO) {
-        try {
-            NotaResponseDTO notaActualizada = notaService.actualizarNota(id, requestDTO);
-            return ResponseEntity.ok(notaActualizada);
-        } catch (NotaNoEncontradaException ex) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al actualizar la nota: " + ex.getMessage());
-        }
+    public ResponseEntity<?> actualizarNota(
+            @PathVariable Long id,
+            @Valid @RequestBody NotaRequestDTO requestDTO) {
+        return ResponseEntity.ok(notaService.actualizarNota(id, requestDTO));
     }
 
-    // Consultar notas por diferentes criterios
     @GetMapping
-    public ResponseEntity<?> obtenerTodas() {
-        try {
-            List<NotaResponseDTO> notas = notaService.obtenerTodas();
-            return ResponseEntity.ok(notas);
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
-        }
+    public ResponseEntity<List<NotaResponseDTO>> obtenerTodas() {
+        return ResponseEntity.ok(notaService.obtenerTodas());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(notaService.obtenerPorId(id));
-        } catch (NotaNoEncontradaException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ex.getMessage());
-        }
+    public ResponseEntity<NotaResponseDTO> obtenerPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(notaService.obtenerPorId(id));
     }
 
     @GetMapping("/estudiante/{estudianteId}")
-    public ResponseEntity<?> obtenerPorEstudiante(@PathVariable Long estudianteId) {
-        try {
-            List<NotaResponseDTO> notas = (List<NotaResponseDTO>) notaService.obtenerPorEstudiante(estudianteId);
-            return ResponseEntity.ok(notas);
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
-        }
+    public ResponseEntity<List<NotaResponseDTO>> obtenerPorEstudiante(
+            @PathVariable Long estudianteId) {
+        return ResponseEntity.ok(notaService.obtenerPorEstudiante(estudianteId));
     }
 
     @GetMapping("/curso/{cursoId}")
-    public ResponseEntity<?> obtenerPorCurso(@PathVariable Long cursoId) {
-        try {
-            List<NotaResponseDTO> notas = notaService.obtenerPorCurso(cursoId);
-            return ResponseEntity.ok(notas);
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
-        }
+    public ResponseEntity<List<NotaResponseDTO>> obtenerPorCurso(
+            @PathVariable Long cursoId) {
+        return ResponseEntity.ok(notaService.obtenerPorCurso(cursoId));
     }
 
     @GetMapping("/inscripcion/{inscripcionId}")
-    public ResponseEntity<?> obtenerPorInscripcion(@PathVariable Long inscripcionId) {
-        try {
-            List<NotaResponseDTO> notas = notaService.obtenerPorInscripcion(inscripcionId);
-            return ResponseEntity.ok(notas);
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
-        }
+    public ResponseEntity<List<NotaResponseDTO>> obtenerPorInscripcion(
+            @PathVariable Long inscripcionId) {
+        return ResponseEntity.ok(notaService.obtenerPorInscripcion(inscripcionId));
     }
 
     @GetMapping("/estudiante/{estudianteId}/curso/{cursoId}")
-    public ResponseEntity<?> obtenerPorEstudianteYCurso(@PathVariable Long estudianteId, @PathVariable Long cursoId) {
-        try {
-        	NotaResponseDTO nota = notaService.obtenerPorEstudianteYCurso(estudianteId, cursoId);
-            return ResponseEntity.ok(nota);
-        } catch (NotaNoEncontradaException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
-        }
+    public ResponseEntity<NotaResponseDTO> obtenerPorEstudianteYCurso(
+            @PathVariable Long estudianteId,
+            @PathVariable Long cursoId) {
+        return ResponseEntity.ok(
+                notaService.obtenerPorEstudianteYCurso(estudianteId, cursoId));
     }
 
-    // Calcular automáticamente el promedio
     @GetMapping("/estudiante/{estudianteId}/promedio")
-    public ResponseEntity<?> obtenerPromedioEstudiante(@PathVariable Long estudianteId) {
-        try {
-            Double promedio = notaService.calcularPromedioEstudiante(estudianteId);
-            return ResponseEntity.ok(promedio);
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
-        }
+    public ResponseEntity<Double> obtenerPromedioEstudiante(
+            @PathVariable Long estudianteId) {
+        return ResponseEntity.ok(notaService.calcularPromedioEstudiante(estudianteId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminarNota(@PathVariable Long id) {
-        try {
-            notaService.eliminar(id);
-            return ResponseEntity.noContent().build();
-        } catch (NotaNoEncontradaException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ex.getMessage());
-        }
+    public ResponseEntity<Void> eliminarNota(@PathVariable Long id) {
+        notaService.eliminar(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -17,6 +17,8 @@ public interface CursoService {
 
     List<CursoResponseDTO> obtenerPorCarrera(Long carreraId);
 
+    List<CursoResponseDTO> obtenerPorDocenteAutenticado();
+
     CursoResponseDTO actualizar(
             Long id,
             CursoRequestDTO request
@@ -26,4 +28,3 @@ public interface CursoService {
 
     CursoResponseDTO restaurar(Long id);
 }
-
