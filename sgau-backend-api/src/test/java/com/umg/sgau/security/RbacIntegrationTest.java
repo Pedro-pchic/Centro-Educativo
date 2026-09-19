@@ -157,6 +157,19 @@ class RbacIntegrationTest {
     }
 
     @Test
+    void credencialesInvalidasDevuelven401() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "username": "estudiante",
+                                  "password": "incorrecta"
+                                }
+                                """))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void sinTokenDevuelve401() throws Exception {
         mockMvc.perform(get("/api/estudiantes"))
                 .andExpect(status().isUnauthorized());
