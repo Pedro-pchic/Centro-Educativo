@@ -29,23 +29,15 @@ public class NotaController {
 
     @PostMapping
     public ResponseEntity<?> registrarNota(@Valid @RequestBody NotaRequestDTO requestDTO) {
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(notaService.registrarNota(requestDTO));
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
-        }
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(notaService.registrarNota(requestDTO));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarNota(
             @PathVariable Long id,
             @Valid @RequestBody NotaRequestDTO requestDTO) {
-        try {
-            return ResponseEntity.ok(notaService.actualizarNota(id, requestDTO));
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
-        }
+        return ResponseEntity.ok(notaService.actualizarNota(id, requestDTO));
     }
 
     @GetMapping

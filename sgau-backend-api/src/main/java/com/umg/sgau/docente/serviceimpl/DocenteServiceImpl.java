@@ -62,7 +62,8 @@ public class DocenteServiceImpl implements DocenteService {
         		.filter(docente ->docente.getDpi().equals(dpi))
         		.filter(DocenteEntity::getActivo)
         		.findFirst()
-        		.orElseThrow(() -> new RuntimeException("No se encontró ningún docente con el DPI: " + dpi));
+			.orElseThrow(() -> new DocenteNoEncontradoException(
+					"No se encontró ningún docente con el DPI solicitado."));
     }
     
     @Override
@@ -70,7 +71,7 @@ public class DocenteServiceImpl implements DocenteService {
 		validarAccesoDocente(id);
         return docenteRepository.findById(id)
                 .filter(docente -> Boolean.TRUE.equals(docente.getActivo()))
-                .orElseThrow(() -> new RuntimeException("No se encontró ningún docente con el ID: " + id));
+                .orElseThrow(() -> new DocenteNoEncontradoException(id));
     }
     
     @Override

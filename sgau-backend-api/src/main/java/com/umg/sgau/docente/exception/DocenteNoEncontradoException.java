@@ -5,5 +5,9 @@ public class DocenteNoEncontradoException extends RuntimeException {
 	public DocenteNoEncontradoException(Long id) { 
 		super("Docente no encontrado con id: " + id); 
 	} 
+
+	public DocenteNoEncontradoException(String mensaje) {
+		super(mensaje);
+	}
 	
 }

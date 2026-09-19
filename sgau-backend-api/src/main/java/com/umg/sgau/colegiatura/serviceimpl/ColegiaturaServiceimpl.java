@@ -15,6 +15,7 @@ import com.umg.sgau.colegiatura.dto.ColegiaturaRequestDTO;
 import com.umg.sgau.colegiatura.dto.ColegiaturaResponseDTO;
 import com.umg.sgau.colegiatura.entity.ColegiaturaEntity;
 import com.umg.sgau.colegiatura.exception.ColegiaturaNoEncontradaException;
+import com.umg.sgau.colegiatura.exception.ColegiaturaDuplicadaException;
 import com.umg.sgau.colegiatura.mapper.ColegiaturaMapper;
 import com.umg.sgau.colegiatura.repository.ColegiaturaRepository;
 import com.umg.sgau.colegiatura.service.ColegiaturaService;
@@ -103,7 +104,7 @@ public class ColegiaturaServiceimpl
 
         if(existe){
 
-            throw new RuntimeException(
+            throw new ColegiaturaDuplicadaException(
                     "Ya existe una colegiatura activa para este estudiante"
             );
 
@@ -228,7 +229,7 @@ public class ColegiaturaServiceimpl
                 !actual.getCiclo().equals(request.getCiclo()))) {
 
 
-            throw new RuntimeException(
+            throw new ColegiaturaDuplicadaException(
                     "Ya existe otra colegiatura activa con esos datos"
             );
 

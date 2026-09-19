@@ -47,57 +47,38 @@ public class DocenteController {
  
     // Registrar catedrático
     @PostMapping 
-    public ResponseEntity<?> crear(@Valid @RequestBody DocenteRequestDTO request) {
-        try {
-            DocenteEntity docenteCreado = docenteService.registrarDocente(DocenteMapper.aEntidad(request)); 
-            DocenteResponseDTO response = DocenteMapper.aResponseDTO(docenteCreado); 
-            return ResponseEntity.status(HttpStatus.CREATED).body(response); 
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-        }
+    public ResponseEntity<DocenteResponseDTO> crear(@Valid @RequestBody DocenteRequestDTO request) {
+        DocenteEntity docenteCreado = docenteService.registrarDocente(DocenteMapper.aEntidad(request));
+        DocenteResponseDTO response = DocenteMapper.aResponseDTO(docenteCreado);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     } 
  
     // Buscar por DPI
     @GetMapping("/dpi/{dpi}") 
-    public ResponseEntity<?> obtenerPorDpi(@PathVariable String dpi) { 
-        try { 
-            DocenteEntity docente = docenteService.buscarPorDpi(dpi); 
-            return ResponseEntity.ok(DocenteMapper.aResponseDTO(docente)); 
-        } catch (RuntimeException ex) { 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage()); 
-        } 
+    public ResponseEntity<DocenteResponseDTO> obtenerPorDpi(@PathVariable String dpi) {
+        DocenteEntity docente = docenteService.buscarPorDpi(dpi);
+        return ResponseEntity.ok(DocenteMapper.aResponseDTO(docente));
     } 
     
     // Buscar por ID
     @GetMapping("/{id}") 
-    public ResponseEntity<?> buscarPorId(@PathVariable Long id) { 
-        try { 
-            DocenteEntity docente = docenteService.buscarPorId(id); 
-            return ResponseEntity.ok(DocenteMapper.aResponseDTO(docente)); 
-        } catch (RuntimeException ex) { 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage()); 
-        } 
+    public ResponseEntity<DocenteResponseDTO> buscarPorId(@PathVariable Long id) {
+        DocenteEntity docente = docenteService.buscarPorId(id);
+        return ResponseEntity.ok(DocenteMapper.aResponseDTO(docente));
     } 
     // Buscar por Especialidad
     @GetMapping("/especialidad/{especialidad}")
-    public ResponseEntity<?>buscarPorEspecialidad(@PathVariable String especialidad){
-    	try {
-    		List<DocenteEntity> docente = docenteService.buscarPorEspecialidad(especialidad);
-    		return ResponseEntity.ok(DocenteMapper.aResponseDTOList(docente));
-    	} catch (RuntimeException ex) {
-    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage()); 
-    	}
+    public ResponseEntity<List<DocenteResponseDTO>> buscarPorEspecialidad(
+            @PathVariable String especialidad) {
+        List<DocenteEntity> docente = docenteService.buscarPorEspecialidad(especialidad);
+        return ResponseEntity.ok(DocenteMapper.aResponseDTOList(docente));
     }
     
     // Buscar por Docentes activos
     @GetMapping("/activos")
-    public ResponseEntity<?>obtenerDocentesActivos(){
-    	try {
-    		List<DocenteEntity> docente = docenteService.obtenerDocentesActivos();
-    		return ResponseEntity.ok(DocenteMapper.aResponseDTOList(docente));
-    	} catch (RuntimeException ex) {
-    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage()); 
-    	}
+    public ResponseEntity<List<DocenteResponseDTO>> obtenerDocentesActivos() {
+        List<DocenteEntity> docente = docenteService.obtenerDocentesActivos();
+        return ResponseEntity.ok(DocenteMapper.aResponseDTOList(docente));
     }
     
     
@@ -124,34 +105,25 @@ public class DocenteController {
  
     // Actualizar información de catedráticos
     @PutMapping("/{id}") 
-    public ResponseEntity<?> actualizar(@PathVariable Long id, @Valid @RequestBody DocenteRequestDTO request) {
-        try { 
-            DocenteEntity docenteActualizado = docenteService.actualizar(id, DocenteMapper.aEntidad(request)); 
-            return ResponseEntity.ok(DocenteMapper.aResponseDTO(docenteActualizado)); 
-        } catch (DocenteNoEncontradoException ex) { 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage()); 
-        } 
+    public ResponseEntity<DocenteResponseDTO> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody DocenteRequestDTO request) {
+        DocenteEntity docenteActualizado = docenteService.actualizar(
+                id, DocenteMapper.aEntidad(request));
+        return ResponseEntity.ok(DocenteMapper.aResponseDTO(docenteActualizado));
     } 
  
     // Inhabilitar catedrático (Eliminación lógica)
     @DeleteMapping("/{id}") 
-    public ResponseEntity<?> eliminar(@PathVariable Long id) { 
-        try { 
-            docenteService.eliminar(id); 
-            return ResponseEntity.noContent().build(); 
-        } catch (DocenteNoEncontradoException ex) { 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage()); 
-        } 
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        docenteService.eliminar(id);
+        return ResponseEntity.noContent().build();
     } 
 
     // Habilitar catedrático
     @PutMapping("/{id}/habilitar")
-    public ResponseEntity<?> habilitar(@PathVariable Long id) {
-        try {
-            docenteService.habilitar(id);
-            return ResponseEntity.ok().build();
-        } catch (DocenteNoEncontradoException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        }
+    public ResponseEntity<Void> habilitar(@PathVariable Long id) {
+        docenteService.habilitar(id);
+        return ResponseEntity.ok().build();
     }
 }

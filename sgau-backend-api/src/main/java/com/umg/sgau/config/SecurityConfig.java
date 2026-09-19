@@ -1,5 +1,7 @@
 package com.umg.sgau.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.umg.sgau.error.ApiErrorResponse;
 import com.umg.sgau.security.JwtAuthenticationFilter;
 
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -7,10 +9,13 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -29,8 +34,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(
-            JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
@@ -40,8 +44,14 @@ public class SecurityConfig {
     }
 
     @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper().findAndRegisterModules();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http) throws Exception {
+            HttpSecurity http,
+            ObjectMapper objectMapper) throws Exception {
 
         http
             .csrf(csrf -> csrf.disable())
@@ -56,38 +66,21 @@ public class SecurityConfig {
                 exceptions
                     .authenticationEntryPoint(
                         (request, response, exception) -> {
-
-                            response.setStatus(
-                                HttpServletResponse.SC_UNAUTHORIZED
-                            );
-
-                            response.setContentType(
-                                "application/json"
-                            );
-
-                            response.getWriter().write(
-                                """
-                                {
-                                  "status": 401,
-                                  "error": "Unauthorized",
-                                  "message": "Se requiere autenticación válida"
-                                }
-                                """
-                            );
+                            escribirError(
+                                    request,
+                                    response,
+                                    HttpStatus.UNAUTHORIZED,
+                                    "Se requiere autenticación válida",
+                                    objectMapper);
                         }
                     )
                     .accessDeniedHandler((request, response, exception) -> {
-                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                        response.setContentType("application/json");
-                        response.getWriter().write(
-                            """
-                            {
-                              "status": 403,
-                              "error": "Forbidden",
-                              "message": "No tiene permisos para este recurso"
-                            }
-                            """
-                        );
+                        escribirError(
+                                request,
+                                response,
+                                HttpStatus.FORBIDDEN,
+                                "No tiene permisos para este recurso",
+                                objectMapper);
                     })
             )
 
@@ -229,5 +222,24 @@ public class SecurityConfig {
             );
 
         return http.build();
+    }
+
+    private void escribirError(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            HttpStatus status,
+            String message,
+            ObjectMapper objectMapper) throws java.io.IOException {
+        response.setStatus(status.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        objectMapper.writeValue(
+                response.getWriter(),
+                new ApiErrorResponse(
+                        java.time.Instant.now(),
+                        status.value(),
+                        status.getReasonPhrase(),
+                        message,
+                        request.getRequestURI(),
+                        null));
     }
 }

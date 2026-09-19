@@ -8,7 +8,6 @@ import com.umg.sgau.usuario.exception.AsociacionAcademicaException;
 import com.umg.sgau.usuario.exception.UsuarioNoEncontradoException;
 import com.umg.sgau.usuario.service.AsociacionAcademicaService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,34 +25,18 @@ public class UsuarioPerfilController {
     }
 
     @PostMapping("/asociar-estudiante")
-    public ResponseEntity<?> asociarEstudiante(
+    public ResponseEntity<Void> asociarEstudiante(
             @Valid @RequestBody AsociarEstudianteRequestDTO request) {
-        try {
-            asociacionAcademicaService.asociarEstudiante(
-                    request.getUsuarioId(),
-                    request.getEstudianteId()
-            );
-            return ResponseEntity.noContent().build();
-        } catch (UsuarioNoEncontradoException | EstudianteNoEncontradoException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        } catch (AsociacionAcademicaException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
-        }
+        asociacionAcademicaService.asociarEstudiante(
+                request.getUsuarioId(), request.getEstudianteId());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/asociar-docente")
-    public ResponseEntity<?> asociarDocente(
+    public ResponseEntity<Void> asociarDocente(
             @Valid @RequestBody AsociarDocenteRequestDTO request) {
-        try {
-            asociacionAcademicaService.asociarDocente(
-                    request.getUsuarioId(),
-                    request.getDocenteId()
-            );
-            return ResponseEntity.noContent().build();
-        } catch (UsuarioNoEncontradoException | DocenteNoEncontradoException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        } catch (AsociacionAcademicaException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
-        }
+        asociacionAcademicaService.asociarDocente(
+                request.getUsuarioId(), request.getDocenteId());
+        return ResponseEntity.noContent().build();
     }
 }
