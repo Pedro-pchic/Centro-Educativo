@@ -9,7 +9,22 @@ import java.util.Optional;
 
 @Repository
 public interface NotaRepository extends JpaRepository<NotaEntity, Long> {
-	
-    // Buscar las notas asociadas a una inscripción específica
-    List<NotaEntity> findByInscripcionId(Long inscripcionId);
+
+    List<NotaEntity> findByActivoTrue();
+
+    Optional<NotaEntity> findByIdAndActivoTrue(Long id);
+
+    List<NotaEntity> findByActivoTrueAndInscripcion_Estudiante_Id(Long estudianteId);
+
+    List<NotaEntity> findByActivoTrueAndInscripcion_Curso_Id(Long cursoId);
+
+    List<NotaEntity> findByActivoTrueAndInscripcion_Id(Long inscripcionId);
+
+    List<NotaEntity> findByActivoTrueAndInscripcion_Estudiante_IdAndInscripcion_Curso_Docente_Id(
+            Long estudianteId, Long docenteId);
+
+    Optional<NotaEntity> findFirstByActivoTrueAndInscripcion_Estudiante_IdAndInscripcion_Curso_Id(
+            Long estudianteId, Long cursoId);
+
+    boolean existsByInscripcionIdAndActivoTrue(Long inscripcionId);
 }

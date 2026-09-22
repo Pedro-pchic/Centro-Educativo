@@ -22,5 +22,6 @@ public interface CursoRepository extends JpaRepository<CursoEntity, Long> {
     List<CursoEntity> findAllByActivoFalse();
 
     List<CursoEntity> findAllByCarreraIdAndActivoTrue(Long carreraId);
-}
 
+    List<CursoEntity> findAllByDocenteIdAndActivoTrue(Long docenteId);
+}

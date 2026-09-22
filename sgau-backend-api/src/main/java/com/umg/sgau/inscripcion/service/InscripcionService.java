@@ -19,6 +19,8 @@ public interface InscripcionService {
 
     List<InscripcionResponseDTO> obtenerPorEstudiante(Long estudianteId);
 
+    List<InscripcionResponseDTO> obtenerMisInscripciones();
+
     List<InscripcionResponseDTO> obtenerPorCurso(Long cursoId);
 
     InscripcionResponseDTO actualizar(Long id, InscripcionRequestDTO request);

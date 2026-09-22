@@ -1,18 +1,26 @@
 package com.umg.sgau.docente.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.umg.sgau.usuario.entity.UsuarioEntity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
@@ -51,6 +59,16 @@ public class DocenteEntity {
 	
 	@Column(nullable = false)
 	private Boolean activo;
+
+	@JsonIgnore
+	@OneToOne(fetch = FetchType.LAZY, optional = true)
+	@JoinColumn(
+			name = "usuario_id",
+			foreignKey = @ForeignKey(name = "fk_docente_usuario")
+	)
+	@ToString.Exclude
+	@EqualsAndHashCode.Exclude
+	private UsuarioEntity usuario;
 	
 	@Column(name = "fecha_creacion", nullable = false, updatable = false)
 	private LocalDateTime fechaCreacion;

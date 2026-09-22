@@ -26,11 +26,14 @@ import com.umg.sgau.inscripcion.exception.InscripcionRelacionInactivaException;
 import com.umg.sgau.inscripcion.mapper.InscripcionMapper;
 import com.umg.sgau.inscripcion.repository.InscripcionRepository;
 import com.umg.sgau.inscripcion.service.InscripcionService;
+import com.umg.sgau.usuario.entity.RolUsuario;
+import com.umg.sgau.usuario.entity.UsuarioEntity;
+import com.umg.sgau.usuario.exception.AsociacionAcademicaException;
+import com.umg.sgau.usuario.service.IdentidadAcademicaService;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class InscripcionServiceImpl implements InscripcionService {
 
@@ -38,9 +41,34 @@ public class InscripcionServiceImpl implements InscripcionService {
     private final EstudianteRepository estudianteRepository;
     private final CursoRepository cursoRepository;
     private final InscripcionMapper inscripcionMapper;
+    private final IdentidadAcademicaService identidadAcademicaService;
+
+    @Autowired
+    public InscripcionServiceImpl(
+            InscripcionRepository inscripcionRepository,
+            EstudianteRepository estudianteRepository,
+            CursoRepository cursoRepository,
+            InscripcionMapper inscripcionMapper,
+            IdentidadAcademicaService identidadAcademicaService) {
+        this.inscripcionRepository = inscripcionRepository;
+        this.estudianteRepository = estudianteRepository;
+        this.cursoRepository = cursoRepository;
+        this.inscripcionMapper = inscripcionMapper;
+        this.identidadAcademicaService = identidadAcademicaService;
+    }
+
+    public InscripcionServiceImpl(
+            InscripcionRepository inscripcionRepository,
+            EstudianteRepository estudianteRepository,
+            CursoRepository cursoRepository,
+            InscripcionMapper inscripcionMapper) {
+        this(inscripcionRepository, estudianteRepository, cursoRepository,
+                inscripcionMapper, null);
+    }
 
     @Override
     public InscripcionResponseDTO crear(InscripcionRequestDTO request) {
+        requerirAdmin();
         EstudianteEntity estudiante = obtenerEstudianteActivo(request.getEstudianteId());
         CursoEntity curso = obtenerCursoActivo(request.getCursoId());
         validarDuplicado(request.getEstudianteId(), request.getCursoId());
@@ -53,13 +81,17 @@ public class InscripcionServiceImpl implements InscripcionService {
     @Transactional(readOnly = true)
     public InscripcionResponseDTO obtenerPorId(Long id) {
         return inscripcionRepository.findByIdAndActivoTrue(id)
-                .map(inscripcionMapper::aResponseDTO)
+                .map(inscripcion -> {
+                    validarAccesoInscripcion(inscripcion);
+                    return inscripcionMapper.aResponseDTO(inscripcion);
+                })
                 .orElseThrow(() -> new InscripcionNoEncontradaException(id));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<InscripcionResponseDTO> obtenerTodas() {
+        requerirAdmin();
         return inscripcionRepository.findAllByActivoTrue()
                 .stream()
                 .filter(inscripcion -> Boolean.TRUE.equals(inscripcion.getActivo()))
@@ -70,6 +102,7 @@ public class InscripcionServiceImpl implements InscripcionService {
     @Override
     @Transactional(readOnly = true)
     public Page<InscripcionResponseDTO> obtenerTodasPaginadas(int pagina, int tamanio) {
+        requerirAdmin();
         if (pagina < 0 || tamanio <= 0) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
@@ -82,6 +115,7 @@ public class InscripcionServiceImpl implements InscripcionService {
     @Override
     @Transactional(readOnly = true)
     public List<InscripcionResponseDTO> obtenerPorEstudiante(Long estudianteId) {
+        validarAccesoEstudiante(estudianteId);
         obtenerEstudianteActivo(estudianteId);
         return inscripcionRepository.findByEstudiante_IdAndActivoTrue(estudianteId)
                 .stream()
@@ -93,7 +127,8 @@ public class InscripcionServiceImpl implements InscripcionService {
     @Override
     @Transactional(readOnly = true)
     public List<InscripcionResponseDTO> obtenerPorCurso(Long cursoId) {
-        obtenerCursoActivo(cursoId);
+        CursoEntity curso = obtenerCursoActivo(cursoId);
+        validarAccesoCurso(curso);
         return inscripcionRepository.findByCurso_IdAndActivoTrue(cursoId)
                 .stream()
                 .filter(inscripcion -> Boolean.TRUE.equals(inscripcion.getActivo()))
@@ -103,6 +138,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 
     @Override
     public InscripcionResponseDTO actualizar(Long id, InscripcionRequestDTO request) {
+        requerirAdmin();
         InscripcionEntity inscripcion = inscripcionRepository.findByIdAndActivoTrue(id)
                 .orElseThrow(() -> new InscripcionNoEncontradaException(id));
         EstudianteEntity estudiante = obtenerEstudianteActivo(request.getEstudianteId());
@@ -121,11 +157,97 @@ public class InscripcionServiceImpl implements InscripcionService {
 
     @Override
     public void eliminar(Long id) {
+        requerirAdmin();
         InscripcionEntity inscripcion = inscripcionRepository.findByIdAndActivoTrue(id)
                 .orElseThrow(() -> new InscripcionNoEncontradaException(id));
         inscripcion.setActivo(false);
         inscripcion.setFechaActualizacion(LocalDateTime.now());
         inscripcionRepository.save(inscripcion);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<InscripcionResponseDTO> obtenerMisInscripciones() {
+        if (identidadAcademicaService == null) {
+            throw new AsociacionAcademicaException(
+                    "No se configuró el resolver de identidad académica.");
+        }
+
+        Long estudianteId = identidadAcademicaService.obtenerEstudianteAutenticado().getId();
+        return inscripcionRepository.findByEstudiante_IdAndActivoTrue(estudianteId)
+                .stream()
+                .map(inscripcionMapper::aResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    private void requerirAdmin() {
+        if (identidadAcademicaService != null
+                && !identidadAcademicaService.esAdmin()) {
+            throw new AsociacionAcademicaException(
+                    "Solo ADMIN puede administrar inscripciones.");
+        }
+    }
+
+    private void validarAccesoEstudiante(Long estudianteId) {
+        if (identidadAcademicaService == null) {
+            return;
+        }
+
+        UsuarioEntity usuario = identidadAcademicaService.obtenerUsuarioAutenticado();
+        if (usuario.getRol() == RolUsuario.ADMIN) {
+            return;
+        }
+        if (usuario.getRol() == RolUsuario.ESTUDIANTE
+                && identidadAcademicaService.obtenerEstudianteAutenticado()
+                        .getId().equals(estudianteId)) {
+            return;
+        }
+        throw new AsociacionAcademicaException(
+                "No tiene permisos para consultar inscripciones de este estudiante.");
+    }
+
+    private void validarAccesoCurso(CursoEntity curso) {
+        if (identidadAcademicaService == null
+                || identidadAcademicaService.esAdmin()) {
+            return;
+        }
+
+        Long docenteId = curso.getDocente() == null
+                ? null
+                : curso.getDocente().getId();
+        if (docenteId != null
+                && identidadAcademicaService.obtenerDocenteAutenticado()
+                        .getId().equals(docenteId)) {
+            return;
+        }
+        throw new AsociacionAcademicaException(
+                "No tiene permisos para consultar estudiantes de este curso.");
+    }
+
+    private void validarAccesoInscripcion(InscripcionEntity inscripcion) {
+        if (identidadAcademicaService == null) {
+            return;
+        }
+
+        UsuarioEntity usuario = identidadAcademicaService.obtenerUsuarioAutenticado();
+        if (usuario.getRol() == RolUsuario.ADMIN) {
+            return;
+        }
+        if (usuario.getRol() == RolUsuario.ESTUDIANTE
+                && inscripcion.getEstudiante() != null
+                && identidadAcademicaService.obtenerEstudianteAutenticado()
+                        .getId().equals(inscripcion.getEstudiante().getId())) {
+            return;
+        }
+        if (usuario.getRol() == RolUsuario.DOCENTE
+                && inscripcion.getCurso() != null
+                && inscripcion.getCurso().getDocente() != null
+                && identidadAcademicaService.obtenerDocenteAutenticado()
+                        .getId().equals(inscripcion.getCurso().getDocente().getId())) {
+            return;
+        }
+        throw new AsociacionAcademicaException(
+                "No tiene permisos para consultar esta inscripción.");
     }
 
     private EstudianteEntity obtenerEstudianteActivo(Long id) {

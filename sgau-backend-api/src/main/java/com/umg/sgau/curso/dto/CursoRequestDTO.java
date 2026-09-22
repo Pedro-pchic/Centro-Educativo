@@ -47,6 +47,6 @@ public class CursoRequestDTO {
     private Long docenteId;
 
     @NotNull(message = "La carrera es obligatoria")
+    @Positive(message = "El identificador de la carrera debe ser mayor que cero")
     private Long carreraId;
 }
-
