@@ -2,9 +2,11 @@ package com.umg.sgau.auth.controller;
 
 import com.umg.sgau.auth.dto.LoginRequestDTO;
 import com.umg.sgau.auth.dto.LoginResponseDTO;
+import com.umg.sgau.auth.dto.PublicKeyResponseDTO;
 import com.umg.sgau.auth.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +20,11 @@ public class AuthController {
 
     public AuthController(AuthService authService) {
         this.authService = authService;
+    }
+
+    @GetMapping("/public-key")
+    public ResponseEntity<PublicKeyResponseDTO> publicKey() {
+        return ResponseEntity.ok(authService.publicKey());
     }
 
     @PostMapping("/login")
