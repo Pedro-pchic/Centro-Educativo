@@ -7,7 +7,16 @@ DB_USERNAME=admin1
 DB_PASSWORD=colocar_fuera_del_repositorio
 JWT_SECRET=colocar_un_secreto_de_al_menos_32_caracteres_fuera_del_repositorio
 
+# RSA-OAEP (PKCS#8 private key and X.509/SPKI public key, preferably Secret Manager)
+AUTH_RSA_PRIVATE_KEY=pegar_la_clave_privada_PEM_fuera_del_repositorio
+AUTH_RSA_PUBLIC_KEY=pegar_la_clave_publica_PEM
+
 # Opcionales
 JWT_EXPIRATION=86400000
 PORT=8080
 CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:4200,http://localhost:5173
+
+# Use true only during the client migration; production should use false.
+ALLOW_LEGACY_PASSWORD=false
+# Only for isolated local tests; never enable in Cloud Run.
+AUTH_RSA_ALLOW_EPHEMERAL=false
